@@ -1,0 +1,12 @@
+image: debian:latest
+
+stages:
+  - meow
+
+meow-job:
+  stage: meow
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y cowsay
+  script:
+    - /usr/games/cowsay "Meoooow"
