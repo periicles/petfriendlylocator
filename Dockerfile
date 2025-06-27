@@ -43,7 +43,7 @@ ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
 
 # Prisma + build
-RUN npx prisma generate --schema=src/prisma/schema.prisma && \
+RUN npx prisma generate && \
     npm run build && \
     npm cache clean --force
 
