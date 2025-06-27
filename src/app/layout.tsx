@@ -14,7 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Navbar />
           {children}
-          <div>{console.log('This is a console log from the RootLayout component')}</div>
         </Providers>
       </body>
     </html>
