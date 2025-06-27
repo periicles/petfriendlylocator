@@ -1095,3 +1095,36 @@ docker build --target=prod -t petfriendly-prod .
  => => writing image sha256:702d045f156600614e05ba2c82c5bd5e2ccd9f5f8b02b69dcf3670d72dd575d0                                                                                           0.0s
  => => naming to docker.io/library/petfriendly-prod 
 ```
+
+# Advanced Docker - Part 3
+
+## Part 1 - First Pipeline
+
+```bash
+git add gitlab-ci.yml
+```
+
+```bash
+git commit -m "feat: adding the ci file"
+```
+
+```bash
+git push
+```
+
+```bash
+$ /usr/games/cowsay "Meoooow"
+ _________
+< Meoooow >
+ ---------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+Cleaning up project directory and file based variables 00:01
+Job succeeded
+```
+
+## Part 2 - Test then build
+
