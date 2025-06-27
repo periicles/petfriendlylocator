@@ -788,7 +788,6 @@ RUN npm run build
 
 EXPOSE 3000
 ENTRYPOINT ["npm", "start"]
-
 ```
 
 ### 4 - Measure !
@@ -900,6 +899,199 @@ ENTRYPOINT ["npm", "start"]
 
 ### 2 - Labels
 
+Dockerfile-debian
 
+```dockerfile
+# Étape de base
+FROM debian:12.11 AS base
+
+# LABELS OCI standard pour métadonnées de l'image
+LABEL org.opencontainers.image.title="Pet Friendly Locator" \
+      org.opencontainers.image.description="Web app to locate pet-friendly places around Bordeaux" \
+      org.opencontainers.image.authors="Periicles" \
+      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlybordeaux" \
+      org.opencontainers.image.source="https://gitlab.com/Periicles/petfriendlylocator/-/blob/main/Dockerfile-debian?ref_type=heads"
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Installer Node.js (exemple de runtime)
+RUN apt-get update && \
+    apt-get install -y curl gnupg ca-certificates && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copier les fichiers de dépendances
+COPY package*.json ./
+
+# Installer les dépendances sans le cache
+RUN npm install --omit=dev && \
+    npm cache clean --force
+
+# Copier le reste du code
+COPY . .
+
+# Générer le Prisma client et migrer
+RUN npx prisma generate --schema=src/prisma/schema.prisma && \
+    npx prisma migrate deploy --schema=src/prisma/schema.prisma
+
+# Build de l'application
+RUN npm run build
+
+# Port exposé
+EXPOSE 3000
+
+# Lancement
+ENTRYPOINT ["npm", "start"]
+```
+
+```bash
+docker build -t petfriendly-debian --target base .
+```
+
+```bash
+[+] Building 0.2s (9/9) FINISHED                                                                                                                                             docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                   0.0s
+ => => transferring dockerfile: 960B                                                                                                                                                   0.0s
+ => [internal] load metadata for docker.io/library/node:22                                                                                                                             0.0s
+ => [internal] load .dockerignore                                                                                                                                                      0.0s
+ => => transferring context: 2B                                                                                                                                                        0.0s
+ => [base 1/4] FROM docker.io/library/node:22                                                                                                                                          0.0s
+ => [internal] load build context                                                                                                                                                      0.1s
+ => => transferring context: 93B                                                                                                                                                       0.0s
+ => CACHED [base 2/4] WORKDIR /app                                                                                                                                                     0.0s
+ => CACHED [base 3/4] COPY package*.json ./                                                                                                                                            0.0s
+ => CACHED [base 4/4] RUN npm install                                                                                                                                                  0.0s
+ => exporting to image                                                                                                                                                                 0.0s
+ => => exporting layers                                                                                                                                                                0.0s
+ => => writing image sha256:64ee222e86dd49a04e06b2d57f11192d411d6da248280950fc03b41a61c0cb5b                                                                                           0.0s
+ => => naming to docker.io/library/petfriendly-debian 
+```
 
 ### 3 - No root
+
+Dockerfile
+```dockerfile
+# ---------- STAGE BASE : commun à dev & prod ----------
+FROM debian:12.11 AS base
+
+# Labels OCI standards
+LABEL org.opencontainers.image.title="Pet Friendly Locator" \
+      org.opencontainers.image.authors="Periicles" \
+      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlybordeaux" \
+      org.opencontainers.image.vendor="Periicles"
+
+# Création du répertoire de travail
+WORKDIR /app
+
+# Installer Node.js + outils de build
+RUN apt-get update && \
+    apt-get install -y curl gnupg ca-certificates git python3 make g++ && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Ajout d’un utilisateur applicatif sécurisé (UID fixe recommandé)
+RUN useradd -m -u 1001 petuser
+
+# Copier et installer les dépendances
+COPY package*.json ./
+RUN npm install
+
+# Copier le code restant
+COPY . .
+
+# Changer les droits sur /app
+RUN chown -R petuser:petuser /app
+
+# ---------- STAGE DE DEV ----------
+FROM base AS dev
+
+ENV ENVIRONMENT=dev
+
+# Passage en utilisateur non-root
+USER petuser
+
+VOLUME ["/app/src"]
+ENTRYPOINT ["npm", "run", "dev"]
+
+# ---------- STAGE DE PROD ----------
+FROM base AS prod
+
+ENV NODE_ENV=production
+ENV ENVIRONMENT=prod
+
+# Génération Prisma et build (en root)
+RUN npx prisma generate --schema=src/prisma/schema.prisma && \
+    npx prisma migrate deploy --schema=src/prisma/schema.prisma && \
+    npm run build && npm cache clean --force
+
+# Redonner les droits à petuser (si build a généré des fichiers root)
+RUN chown -R petuser:petuser /app
+
+# Port exposé
+EXPOSE 3000
+
+# Passage en utilisateur applicatif sécurisé
+USER petuser
+
+ENTRYPOINT ["npm", "start"]
+```
+
+```bash
+docker build --target=dev -t petfriendly-dev .
+```
+
+```bash
+[+] Building 213.0s (13/13) FINISHED                                                                                                                                         docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                   0.0s
+ => => transferring dockerfile: 1.83kB                                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/debian:12.11                                                                                                                        0.7s
+ => [internal] load .dockerignore                                                                                                                                                      0.0s
+ => => transferring context: 2B                                                                                                                                                        0.0s
+ => [internal] load build context                                                                                                                                                      0.1s
+ => => transferring context: 1.97MB                                                                                                                                                    0.1s
+ => [base 1/8] FROM docker.io/library/debian:12.11@sha256:0d8498a0e9e6a60011df39aab78534cfe940785e7c59d19dfae1eb53ea59babe                                                             0.0s
+ => CACHED [base 2/8] WORKDIR /app                                                                                                                                                     0.0s
+ => [base 3/8] RUN apt-get update &&     apt-get install -y curl gnupg ca-certificates git python3 make g++ &&     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &&       42.9s
+ => [base 4/8] RUN useradd -m -u 1001 petuser                                                                                                                                          0.2s 
+ => [base 5/8] COPY package*.json ./                                                                                                                                                   0.1s 
+ => [base 6/8] RUN npm install                                                                                                                                                        36.5s 
+ => [base 7/8] COPY . .                                                                                                                                                                0.4s 
+ => [base 8/8] RUN chown -R petuser:petuser /app                                                                                                                                     109.6s 
+ => exporting to image                                                                                                                                                                22.1s 
+ => => exporting layers                                                                                                                                                               22.0s 
+ => => writing image sha256:cbf4ffd59f4b29bcd21d2fea010548c5c32a80d605d303a4516862ff5abb9412                                                                                           0.0s
+ => => naming to docker.io/library/petfriendly-dev
+```
+
+```bash
+docker build --target=prod -t petfriendly-prod .
+```
+
+```bash
+[+] Building 163.9s (15/15) FINISHED                                                                                                                                         docker:default
+ => [internal] load build definition from Dockerfile                                                                                                                                   0.2s
+ => => transferring dockerfile: 1.83kB                                                                                                                                                 0.0s
+ => [internal] load metadata for docker.io/library/debian:12.11                                                                                                                        0.6s
+ => [internal] load .dockerignore                                                                                                                                                      0.1s
+ => => transferring context: 2B                                                                                                                                                        0.0s
+ => [internal] load build context                                                                                                                                                      0.0s
+ => => transferring context: 22.35kB                                                                                                                                                   0.0s
+ => [base 1/8] FROM docker.io/library/debian:12.11@sha256:0d8498a0e9e6a60011df39aab78534cfe940785e7c59d19dfae1eb53ea59babe                                                             0.0s
+ => CACHED [base 2/8] WORKDIR /app                                                                                                                                                     0.0s
+ => CACHED [base 3/8] RUN apt-get update &&     apt-get install -y curl gnupg ca-certificates git python3 make g++ &&     curl -fsSL https://deb.nodesource.com/setup_22.x | bash - &  0.0s
+ => CACHED [base 4/8] RUN useradd -m -u 1001 petuser                                                                                                                                   0.0s
+ => CACHED [base 5/8] COPY package*.json ./                                                                                                                                            0.0s
+ => CACHED [base 6/8] RUN npm install                                                                                                                                                  0.0s
+ => CACHED [base 7/8] COPY . .                                                                                                                                                         0.0s
+ => CACHED [base 8/8] RUN chown -R petuser:petuser /app                                                                                                                                0.0s
+ => [prod 1/2] RUN npx prisma generate --schema=src/prisma/schema.prisma &&     npx prisma migrate deploy --schema=src/prisma/schema.prisma &&     npm run build && npm cache clean   39.6s
+ => [prod 2/2] RUN chown -R petuser:petuser /app                                                                                                                                     107.1s 
+ => exporting to image                                                                                                                                                                16.0s
+ => => exporting layers                                                                                                                                                               16.0s
+ => => writing image sha256:702d045f156600614e05ba2c82c5bd5e2ccd9f5f8b02b69dcf3670d72dd575d0                                                                                           0.0s
+ => => naming to docker.io/library/petfriendly-prod 
+```
