@@ -1,4 +1,4 @@
-image: docker:24.8.7
+image: docker:28.3.0
 
 services:
   - docker:dind
