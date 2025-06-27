@@ -1,66 +1,54 @@
-# ---------- STAGE BASE : commun à dev & prod ----------
-FROM debian:12.11 AS base
+# ---------- BASE ----------
+FROM node:22-alpine AS base
 
-# Labels OCI standards
 LABEL org.opencontainers.image.title="Pet Friendly Locator" \
       org.opencontainers.image.authors="Periicles" \
       org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlybordeaux" \
       org.opencontainers.image.vendor="Periicles"
 
-# Création du répertoire de travail
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Installer Node.js + outils de build
-RUN apt-get update && \
-    apt-get install -y curl gnupg ca-certificates git python3 make g++ && \
-    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# Ajout dépendances nécessaires (git pour prisma, make pour éventuels packages natifs)
+RUN apk add --no-cache git make python3 g++
 
-# Ajout d’un utilisateur applicatif sécurisé (UID fixe recommandé)
-RUN useradd -m -u 1001 petuser
+# Ajout utilisateur sécurisé
+RUN adduser -D -u 1001 petuser
 
-# Copier et installer les dépendances
+# Copier fichiers de dépendances
 COPY package*.json ./
 
-# Copier le code restant
+# Copier le reste du projet
 COPY . .
 
-# Changer les droits sur /app
-RUN chown -R petuser:petuser /app
-
-# ---------- STAGE DE DEV ----------
+# ---------- DEV ----------
 FROM base AS dev
 
 RUN npm install
-
 ENV ENVIRONMENT=dev
 
-# Passage en utilisateur non-root
 USER petuser
-
 VOLUME ["/app/src"]
 ENTRYPOINT ["npm", "run", "dev"]
 
-# ---------- STAGE DE PROD ----------
+# ---------- PROD ----------
 FROM base AS prod
 
 RUN npm ci --omit=dev
 
 ENV ENVIRONMENT=prod
 
-# Génération Prisma et build (en root)
-RUN npx prisma generate --schema=src/prisma/schema.prisma && \
-    npx prisma migrate deploy --schema=src/prisma/schema.prisma && \
-    npm run build && npm cache clean --force
+# Important : Prisma a besoin de DATABASE_URL
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
 
-# Redonner les droits à petuser (si build a généré des fichiers root)
+# Prisma + build
+RUN npx prisma generate --schema=src/prisma/schema.prisma && \
+    npm run build && \
+    npm cache clean --force
+
 RUN chown -R petuser:petuser /app
 
-# Port exposé
 EXPOSE 3000
-
-# Passage en utilisateur applicatif sécurisé
 USER petuser
-
 ENTRYPOINT ["npm", "start"]

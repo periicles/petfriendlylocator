@@ -11,8 +11,8 @@
     "lint:fix": "eslint . --ext js,ts,jsx,tsx --fix",
     "format": "prettier --write .",
     "clean": "rm -rf node_modules .next .turbo dist prisma/migrations package-lock.json",
-    "generate": "prisma generate == schema=src/prisma/schema.prisma",
-    "migrate": "prisma migrate dev --name init --schema=src/prisma/schema.prisma"
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev --name init"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
