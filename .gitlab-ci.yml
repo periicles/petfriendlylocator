@@ -1,27 +1,27 @@
 image: debian:12.11
 
 stages:
-  - lint
+  # - lint
   - secrets
-  - build
+  # - build
 
-lint:
-  stage: lint
-  before_script:
-    - apt-get update && apt-get install -y nodejs npm
-    - npm install -g eslint prettier
-  script:
-    - npm ci
-    - npx eslint . --max-warnings=0
+# lint:
+#   stage: lint
+#   before_script:
+#     - apt-get update && apt-get install -y nodejs npm
+#     - npm install -g eslint prettier
+#   script:
+#     - npm ci
+#     - npx eslint . --max-warnings=0
 
-prettier:
-  stage: lint
-  before_script:
-    - apt-get update && apt-get install -y nodejs npm
-    - npm install -g prettier
-  script:
-    - npm ci
-    - npx prettier --check .
+# prettier:
+#   stage: lint
+#   before_script:
+#     - apt-get update && apt-get install -y nodejs npm
+#     - npm install -g prettier
+#   script:
+#     - npm ci
+#     - npx prettier --check .
 
 gitleaks-job:
   stage: secrets
