@@ -10,6 +10,3 @@ lint:
   script:
     - npm ci
     - npx eslint . --max-warnings=0
-  only:
-    - main
-    - merge_requests
