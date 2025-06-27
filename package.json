@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "linter": "next lint",
+	"lint": "eslint . --ext js,ts,jsx,tsx",
+	"lint:fix": "eslint . --ext js,ts,jsx,tsx --fix",
     "clean": "rm -rf node_modules .next .turbo dist prisma/migrations package-lock.json",
     "generate": "prisma generate == schema=src/prisma/schema.prisma",
     "migrate": "prisma migrate dev --name init --schema=src/prisma/schema.prisma"
@@ -34,8 +36,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.4",
+    "eslint": "^9.30.0",
+    "eslint-config-next": "^15.3.4",
     "prisma": "^6.10.1",
     "tailwindcss": "4.1",
     "typescript": "^5"

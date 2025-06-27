@@ -1,12 +1,15 @@
 image: debian:latest
 
 stages:
-  - meow
+  - lint
+  - build
 
-meow-job:
-  stage: meow
-  before_script:
-    - apt-get update -qq
-    - apt-get install -y cowsay
+lint:
+  image: node:22
+  stage: lint
   script:
-    - /usr/games/cowsay "Meoooow"
+    - npm ci
+    - npx eslint . --max-warnings=0
+  only:
+    - main
+    - merge_requests
