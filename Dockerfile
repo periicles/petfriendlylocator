@@ -47,7 +47,6 @@ FROM base AS prod
 
 RUN npm ci --omit=dev
 
-ENV NODE_ENV=production
 ENV ENVIRONMENT=prod
 
 # Génération Prisma et build (en root)
