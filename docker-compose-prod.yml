@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:16
+    container_name: petfriendly_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: petdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    container_name: petfriendly_app_prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    image: petfriendly-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - ENVIRONMENT=prod
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:password@db:5432/petdb?schema=public
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

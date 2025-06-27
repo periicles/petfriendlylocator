@@ -1,0 +1,41 @@
+FROM alpine:3.22.0 AS base
+
+WORKDIR /app
+
+# Ajout des outils nécessaires à l'installation Node + Prisma + deps
+RUN apk add --no-cache \
+  nodejs \
+  npm \
+  bash \
+  curl \
+  libc6-compat \
+  openssl \
+  python3 \
+  make \
+  g++ \
+  git
+
+COPY package*.json ./
+RUN npm install
+
+# Stage de dev
+FROM base AS dev
+ENV ENVIRONMENT=dev
+
+VOLUME ["/app/src"]
+ENTRYPOINT ["npm", "run", "dev"]
+
+# Stage de prod
+FROM base AS prod
+
+ENV NODE_ENV=production
+ENV ENVIRONMENT=prod
+
+COPY . .
+
+RUN npx prisma generate --schema=src/prisma/schema.prisma
+RUN npx prisma migrate deploy --schema=src/prisma/schema.prisma
+RUN npm run build
+
+EXPOSE 3000
+ENTRYPOINT ["npm", "start"]
