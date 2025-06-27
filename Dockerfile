@@ -22,7 +22,6 @@ RUN useradd -m -u 1001 petuser
 
 # Copier et installer les dépendances
 COPY package*.json ./
-RUN npm install
 
 # Copier le code restant
 COPY . .
@@ -32,6 +31,8 @@ RUN chown -R petuser:petuser /app
 
 # ---------- STAGE DE DEV ----------
 FROM base AS dev
+
+RUN npm install
 
 ENV ENVIRONMENT=dev
 
@@ -43,6 +44,8 @@ ENTRYPOINT ["npm", "run", "dev"]
 
 # ---------- STAGE DE PROD ----------
 FROM base AS prod
+
+RUN npm ci --omit=dev
 
 ENV NODE_ENV=production
 ENV ENVIRONMENT=prod

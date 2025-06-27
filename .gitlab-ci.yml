@@ -1,4 +1,4 @@
-image: debian:latest
+image: debian:12.11
 
 stages:
   - lint
@@ -10,3 +10,10 @@ lint:
   script:
     - npm ci
     - npx eslint . --max-warnings=0
+
+prettier:
+  image: node:22
+  stage: lint
+  script:
+    - npm ci
+    - npx prettier --check .

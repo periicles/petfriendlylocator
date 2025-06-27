@@ -9,20 +9,23 @@ const compat = new FlatCompat({
 	baseDirectory: __dirname,
 });
 
-export default [
+const eslintConfig = [
 	...compat.extends(
-		"next/core-web-vitals", // vérifications a11y/perf adaptées à Next.js
-		"next"                  // support React + TypeScript inclus
+		"next/core-web-vitals",
+		"next/typescript",
+		"plugin:prettier/recommended"
 	),
 	{
 		files: ["**/*.{js,ts,jsx,tsx}"],
 		languageOptions: {
 			parserOptions: {
-				project: "./tsconfig.json", // si tu veux les checks types
+				project: "./tsconfig.json",
 			},
 		},
 		rules: {
-			// optionnel : tu peux ajouter des règles ici
+			// Ajoute tes règles personnalisées ici
 		},
 	},
 ];
+
+export default eslintConfig;
