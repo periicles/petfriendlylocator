@@ -34,7 +34,10 @@ ENTRYPOINT ["npm", "run", "dev"]
 # ---------- PROD ----------
 FROM base AS prod
 
-RUN npm ci --omit=dev
+RUN npm ci && \
+    npm run build && \
+    npm prune --production && \
+    npm cache clean --force
 
 ENV ENVIRONMENT=prod
 
