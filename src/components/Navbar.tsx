@@ -26,9 +26,9 @@ export default function Navbar() {
           </Link>
 
           <Link
-            href="/locations"
+            href="/carte"
             className={
-              isActive('/locations')
+              isActive('/carte')
                 ? 'text-blue-600 font-semibold'
                 : 'text-gray-700 hover:text-blue-500'
             }

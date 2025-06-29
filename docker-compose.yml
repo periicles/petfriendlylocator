@@ -13,7 +13,7 @@ services:
   app:
     build:
       context: .
-    image: petfriendlylocator_app
+    image: registry.gitlab.com/periicles/petfriendlylocator/petfriendlylocator:latest
     env_file:
       - .env
     ports:
