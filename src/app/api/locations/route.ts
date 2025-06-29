@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/authOptions';
 import type { CreateLocationInput } from '@/types/createLocationInput';
 import type { LocationDTO } from '@/types/locationDto';
 import { mapLocationsToDTO } from '@/utils/mapLocationDto';

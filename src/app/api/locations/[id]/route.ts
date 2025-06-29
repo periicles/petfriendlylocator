@@ -1,7 +1,5 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
-import { LocationDTO } from '@/types/locationDto';
-import { mapLocationsToDTO } from '@/utils/mapLocationDto';
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const location = await prisma.location.findUnique({
