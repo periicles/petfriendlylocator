@@ -57,12 +57,18 @@ build:
   script:
     - docker info
     - docker build -t petfriendlylocator .
+    - docker save petfriendlylocator -o petfriendlylocator.tar
+  artifacts:
+    paths:
+      - petfriendlylocator.tar
+    expire_in: 1 hour
 ######################
 # ----- PUBLISH ---- #
 ######################
 publish:
   stage: publish
   script:
+    - docker load -i petfriendlylocator.tar
     # Login au registre Docker de GitLab
     - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     # Tag vers l'image unique de commit
