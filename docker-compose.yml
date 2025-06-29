@@ -6,7 +6,7 @@ services:
       POSTGRES_PASSWORD: petpassword
       POSTGRES_DB: petdb
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -17,7 +17,7 @@ services:
     env_file:
       - .env
     ports:
-      - "3023:3000"
+      - '3023:3000'
     depends_on:
       - db
     environment:

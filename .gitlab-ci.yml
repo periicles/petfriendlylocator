@@ -23,7 +23,6 @@ stages:
 #   script:
 #     - npx eslint . --max-warnings=0
 #     - npx prettier --check .
-
 ####################
 # --- PRETTIER --- #
 ####################
@@ -35,7 +34,6 @@ stages:
 #   script:
 #     - npm ci
 #     - npx prettier --check .
-
 #########################
 # ----- GITLEAKS ----- #
 #########################
@@ -50,7 +48,6 @@ stages:
 #   script:
 #     - gitleaks detect --source=. --no-git --verbose --redact
 #   allow_failure: false
-
 ######################
 # ----- BUILD ----- #
 ######################
@@ -59,7 +56,6 @@ build:
   script:
     - docker info
     - docker build -t petfriendlylocator .
-
 ######################
 # ----- PUBLISH ---- #
 ######################
