@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import type { CreateLocationInput } from '@/types/createLocationInput';
@@ -11,7 +11,7 @@ export async function GET() {
   return NextResponse.json(mapLocationsToDTO(locations));
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {

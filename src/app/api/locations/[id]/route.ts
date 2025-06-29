@@ -1,9 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
+  const { id } = context.params;
+
   const location = await prisma.location.findUnique({
-    where: { location_id: params.id },
+    where: { location_id: id },
   });
 
   if (!location) return NextResponse.json({ error: 'Lieu non trouvé' }, { status: 404 });
@@ -11,11 +14,12 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
   return NextResponse.json(location);
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: { params: { id: string } }) {
   const data = await req.json();
+  const { id } = context.params;
 
   const updated = await prisma.location.update({
-    where: { location_id: params.id },
+    where: { location_id: id },
     data: {
       name: data.name,
       description: data.description,
@@ -30,9 +34,11 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   return NextResponse.json(updated);
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+  const { id } = context.params;
+
   await prisma.location.delete({
-    where: { location_id: params.id },
+    where: { location_id: id },
   });
 
   return NextResponse.json({ message: 'Lieu supprimé' });
