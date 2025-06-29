@@ -1,37 +1,40 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { hash } from 'bcryptjs'
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { hash } from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, firstname, lastname } = await req.json()
-
-    if (!email || !password || !firstname || !lastname) {
-      return NextResponse.json({ error: 'Champs manquants' }, { status: 400 })
+    const { email, password, pseudo } = await req.json();
+    if (!email || !password || !pseudo) {
+      return NextResponse.json({ error: 'Champs manquants' }, { status: 400 });
     }
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
-    })
-
+    });
     if (existingUser) {
-      return NextResponse.json({ error: 'Email déjà utilisé' }, { status: 409 })
+      return NextResponse.json({ error: 'Email déjà utilisé' }, { status: 409 });
     }
 
-    const hashedPassword = await hash(password, 10)
+    const exisitingPseudo = await prisma.user.findUnique({
+      where: { pseudo },
+    });
+    if (exisitingPseudo) {
+      return NextResponse.json({ error: 'Pseudo déjà utilisé' }, { status: 409 });
+    }
+    const hashedPassword = await hash(password, 10);
 
     await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        firstname,
-        lastname,
+        pseudo,
       },
-    })
+    });
 
-    return NextResponse.json({ message: 'Utilisateur créé avec succès' }, { status: 201 })
+    return NextResponse.json({ message: 'Utilisateur créé avec succès' }, { status: 201 });
   } catch (error) {
-    console.error('Erreur d’inscription:', error)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    console.error('Erreur d’inscription:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

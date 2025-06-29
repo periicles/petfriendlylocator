@@ -18,14 +18,20 @@ export default function Navbar() {
         <div className="flex space-x-4 text-sm md:text-base">
           <Link
             href="/"
-            className={isActive('/') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'}
+            className={
+              isActive('/') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'
+            }
           >
             Accueil
           </Link>
 
           <Link
             href="/locations"
-            className={isActive('/locations') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'}
+            className={
+              isActive('/locations')
+                ? 'text-blue-600 font-semibold'
+                : 'text-gray-700 hover:text-blue-500'
+            }
           >
             Carte
           </Link>
@@ -34,21 +40,26 @@ export default function Navbar() {
             <>
               <Link
                 href="/profile"
-                className={isActive('/profile') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'}
+                className={
+                  isActive('/profile')
+                    ? 'text-blue-600 font-semibold'
+                    : 'text-gray-700 hover:text-blue-500'
+                }
               >
                 Profil
               </Link>
-              <button
-                onClick={() => signOut()}
-                className="text-gray-700 hover:text-red-500"
-              >
+              <button onClick={() => signOut()} className="text-gray-700 hover:text-red-500">
                 Déconnexion
               </button>
             </>
           ) : (
             <Link
               href="/login"
-              className={isActive('/login') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'}
+              className={
+                isActive('/login')
+                  ? 'text-blue-600 font-semibold'
+                  : 'text-gray-700 hover:text-blue-500'
+              }
             >
               Connexion
             </Link>

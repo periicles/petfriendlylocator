@@ -15,7 +15,7 @@ export default function Map() {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-0.57918, 44.837789], // Bordeaux
+      center: [-0.57918, 44.837789],
       zoom: 12,
     });
 

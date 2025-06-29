@@ -1,3 +1,5 @@
+'use client';
+
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center text-center space-y-32 px-4 py-16 md:py-32 max-w-4xl mx-auto">
