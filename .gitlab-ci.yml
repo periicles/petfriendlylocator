@@ -5,6 +5,7 @@ services:
 
 variables:
   DOCKER_TLS_CERTDIR: ''
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/petfriendlylocator
 
 stages:
   # - lint
@@ -59,13 +60,17 @@ build:
 ######################
 # ----- PUBLISH ---- #
 ######################
-# publish:
-#   stage: publish
-#   script:
-#     - docker load -i app.tar
-#     - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
-#     - docker tag $IMAGE_NAME:$CI_COMMIT_SHORT_SHA $IMAGE_NAME:latest
-#     - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
-#     - docker push $IMAGE_NAME:latest
-#   dependencies:
-#     - build
+publish:
+  stage: publish
+  script:
+    # Login au registre Docker de GitLab
+    - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    # Tag vers l'image unique de commit
+    - docker tag petfriendlylocator $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    # Tag vers l'image latest
+    - docker tag petfriendlylocator $IMAGE_NAME:latest
+    # Push les deux
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_NAME:latest
+  dependencies:
+    - build
