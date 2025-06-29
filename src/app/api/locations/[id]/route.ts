@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Optional helper type for clarity
-type RouteContext = { params: Record<string, string> };
-
-export async function GET(req: NextRequest, { params }: RouteContext) {
-  const id = params.id;
+export async function GET(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
+  const id = context.params.id;
 
   const location = await prisma.location.findUnique({
     where: { location_id: id },
@@ -18,9 +18,12 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
   return NextResponse.json(location);
 }
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
   const data = await req.json();
-  const id = params.id;
+  const id = context.params.id;
 
   const updated = await prisma.location.update({
     where: { location_id: id },
@@ -38,8 +41,11 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   return NextResponse.json(updated);
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
-  const id = params.id;
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
+  const id = context.params.id;
 
   await prisma.location.delete({
     where: { location_id: id },
