@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: petuser
+      POSTGRES_PASSWORD: petpassword
+      POSTGRES_DB: petdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+    image: petfriendlylocator_app
+    env_file:
+      - .env
+    ports:
+      - "3023:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://petuser:petpassword@db:5432/petdb?schema=public
+volumes:
+  pgdata:

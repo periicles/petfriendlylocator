@@ -1,57 +1,53 @@
-# ---------- BASE ----------
-FROM node:22-alpine AS base
+# --------- BUILD STAGE ---------
+FROM node:22-alpine AS builder
 
 LABEL org.opencontainers.image.title="Pet Friendly Locator" \
       org.opencontainers.image.authors="Periicles" \
-      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlybordeaux" \
+      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlylocator" \
       org.opencontainers.image.vendor="Periicles"
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Ajout dépendances nécessaires (git pour prisma, make pour éventuels packages natifs)
-RUN apk add --no-cache git make python3 g++
+# Ajoute les dépendances système nécessaires
+RUN apk add --no-cache git python3 make g++
 
-# Ajout utilisateur sécurisé
-RUN adduser -D -u 1001 petuser
+# Copie des fichiers nécessaires
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma
+COPY public ./public
 
-# Copier fichiers de dépendances
-COPY package*.json ./
+# Installation des dépendances
+RUN npm ci
 
-# Copier le reste du projet
+# Génération des fichiers Prisma
+RUN npx prisma generate
+
+# Copie du code source
 COPY . .
 
-# ---------- DEV ----------
-FROM base AS dev
+# Build de l'application Next.js
+RUN npm run build
 
-RUN npm install
-ENV ENVIRONMENT=dev
+# --------- PRODUCTION STAGE ---------
+FROM node:22-alpine AS runner
 
-USER petuser
-VOLUME ["/app/src"]
-ENTRYPOINT ["npm", "run", "dev"]
+WORKDIR /app
 
-# ---------- PROD ----------
-FROM base AS prod
+# Copie des fichiers nécessaires depuis builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
 
-RUN npm ci && \
-    npm run build && \
-    npm prune --production && \
-    npm cache clean --force
+# Regénère les fichiers Prisma dans l'image finale (important pour runtime)
+RUN npx prisma generate
 
-ENV ENVIRONMENT=prod
+# Définir la variable d'environnement de production
+ENV NODE_ENV=production
 
-# Important : Prisma a besoin de DATABASE_URL
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-
-# Prisma + build
-RUN npx prisma generate && \
-    npm run build && \
-    npm cache clean --force
-
-RUN chown -R petuser:petuser /app
-
+# Expose le port
 EXPOSE 3000
-USER petuser
-ENTRYPOINT ["npm", "start"]
+
+# Lancement de l'app
+CMD ["npm", "start"]
