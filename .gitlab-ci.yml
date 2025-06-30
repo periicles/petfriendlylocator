@@ -88,12 +88,10 @@ deploy:
   stage: deploy
   image: debian:12
   before_script:
-    # Install SSH client & Git
     - apt update && apt install -y openssh-client git
-    # Ajoute la clé SSH privée à l'agent
     - mkdir -p ~/.ssh
     - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_25519
+    - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
   script:
     # Envoie le fichier .env
@@ -102,14 +100,12 @@ deploy:
       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'DATABASE_URL=$DATABASE_URL' > ~/petfriendlylocator/.env"
       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXTAUTH_SECRET=$NEXTAUTH_SECRET' >> ~/petfriendlylocator/.env"
       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN' >> ~/petfriendlylocator/.env"
-
     # Clone (ou met à jour) le repo sur la VM
     - |
       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
         cd ~/petfriendlylocator || git clone https://gitlab.com/Periicles/petfriendlylocator.git ~/petfriendlylocator;
         cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME
       '
-
     # Lance docker compose
     - |
       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
