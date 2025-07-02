@@ -53,7 +53,7 @@ async function main() {
     ],
   });
 
-  console.log('✅ Données de seed insérées.');
+  // console.log('✅ Données de seed insérées.');
 }
 
 main()

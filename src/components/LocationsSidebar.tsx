@@ -23,6 +23,7 @@ export default function LocationSidebar() {
       const res = await fetch('/api/locations');
       const data = await res.json();
       setLocations(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.map((loc: any) => ({
           id: loc.location_id,
           name: loc.name,
