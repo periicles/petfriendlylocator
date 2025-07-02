@@ -20,17 +20,11 @@ model User {
   created_at DateTime @default(now())
   password   String
 
-  roles      Role[]
+  roles      UserRole @default(USER)
   locations  Location[]
   reviews    Review[]
 }
 
-model Role {
-  role_id String   @id @default(uuid())
-  role    UserRole
-  user    User     @relation(fields: [user_id], references: [user_id])
-  user_id String
-}
 
 model Location {
   location_id String   @id @default(uuid())
@@ -48,7 +42,7 @@ model Location {
   user_id     String?
 
   reviews     Review[]
-  types       Type[]
+  location_type LocationType
 }
 
 model Review {
@@ -65,13 +59,6 @@ model Review {
   location_id String
 }
 
-model Type {
-  type_id     String   @id @default(uuid())
-  type        String
-
-  location    Location @relation(fields: [location_id], references: [location_id])
-  location_id String
-}
 
 enum UserRole {
   USER
@@ -80,8 +67,8 @@ enum UserRole {
 
 enum LocationType {
   PARK
-  BEACH
   RESTAURANT
   SHOP
+  HOTEL
   OTHER
 }
