@@ -91,11 +91,11 @@ deploy:
   before_script:
     - apt update && apt install -y openssh-client git
     - mkdir -p ~/.ssh
-    - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/deploy_gitlab.pub
-    - chmod 600 ~/.ssh/deploy_gitlab.pub
+    - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
     - echo "🔧 Tentative de connexion SSH avec debug"
-    - ssh -vvv -i ~/.ssh/deploy_gitlab.pub "$DEPLOY_USER@$DEPLOY_HOST" echo "✅ Connexion SSH réussie"
+    - ssh -vvv -i ~/.ssh/id_ed25519 "$DEPLOY_USER@$DEPLOY_HOST" echo "✅ Connexion SSH réussie"
   script:
     # Envoie le fichier .env
     - |
