@@ -29,7 +29,7 @@ lint:
 # --- PRETTIER --- #
 ###################
 prettier:
-  image : node:22-alpine
+  image: node:22-alpine
   stage: lint
   cache:
     paths:
