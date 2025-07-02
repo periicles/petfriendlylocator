@@ -24,18 +24,36 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) return null;
 
         return {
-          id: user.user_id,
+          id: user.user_id, // 👈 important pour .sub
           email: user.email,
           name: user.pseudo,
         };
       },
     }),
   ],
+
   pages: {
     signIn: '/login',
   },
+
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt', // 👈 nécessaire pour API Routes sécurisées avec JWT
   },
-  secret: process.env.NEXTAUTH_SECRET,
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id; // 👈 ID utilisateur injecté dans le token
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token?.sub) {
+        session.user.id = token.sub; // 👈 ID accessible dans client side session
+      }
+      return session;
+    },
+  },
+
+  secret: process.env.NEXTAUTH_SECRET, // 👈 .env obligatoire
 };
