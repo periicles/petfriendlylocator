@@ -29,10 +29,11 @@ lint:
 # --- PRETTIER --- #
 ###################
 prettier:
+  image : node:22-alpine
   stage: lint
-  before_script:
-    - apt-get update && apt-get install -y nodejs npm
-    - npm install -g prettier
+  cache:
+    paths:
+      - node_modules/
   script:
     - npm ci
     - npx prettier --check .
