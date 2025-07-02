@@ -1,9 +1,9 @@
 import LocationsView from '@/components/LocationsView';
 
-export default function LocationsPage() {
+export default function CartePage() {
   return (
-    <main className="flex flex-col min-h-screen pt-16">
+    <div className="flex flex-col">
       <LocationsView />
-    </main>
+    </div>
   );
 }
