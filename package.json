@@ -10,9 +10,10 @@
     "lint": "eslint . --ext js,ts,jsx,tsx",
     "lint:fix": "eslint . --ext js,ts,jsx,tsx --fix",
     "format": "prettier --write .",
-    "clean": "rm -rf node_modules .next .turbo dist prisma/migrations package-lock.json",
+    "clean": "rm -rf node_modules .next .turbo dist prisma/migrations",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev --name init"
+    "migrate": "prisma migrate dev --name init",
+    "seed": "tsc --project tsconfig.seed.json && node dist/seed/seed.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -39,6 +40,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/tailwindcss": "^3.0.11",
     "eslint": "^9.30.0",
     "eslint-config-next": "^15.3.4",
     "eslint-config-prettier": "^10.1.5",
@@ -46,6 +48,7 @@
     "prettier": "^3.6.2",
     "prisma": "^6.10.1",
     "tailwindcss": "4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
