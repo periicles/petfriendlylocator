@@ -6,4 +6,5 @@ export type CreateLocationInput = {
   city: string;
   latitude: string;
   longitude: string;
+  location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'OTHER';
 };
