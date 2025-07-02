@@ -49,7 +49,7 @@ gitleaks-job:
     - tar -xzf gitleaks.tar.gz
     - mv gitleaks /usr/local/bin/
   script:
-    - gitleaks detect --source=. --no-git --verbose --redact
+    - gitleaks detect --source=. --no-git --no-git-history --verbose --redact
   allow_failure: false
 ######################
 # ----- BUILD ----- #
