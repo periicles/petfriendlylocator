@@ -1,60 +1,43 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AddIcon from '@mui/icons-material/Add';
+import AddLocationModal from './AddLocationModal';
 
-const dummyLocations = [
-  { id: 1, name: 'Parc Bordelais' },
-  { id: 2, name: 'Place des Quinconces' },
-  { id: 3, name: 'Jardin Public' },
-];
+type SidebarLocation = {
+  id: string;
+  name: string;
+};
 
 export default function LocationSidebar() {
   const { data: session } = useSession();
+
+  const [locations, setLocations] = useState<SidebarLocation[]>([]);
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
 
-  const [form, setForm] = useState({
-    name: '',
-    address: '',
-    city: '',
-    zip_code: '',
-    latitude: '',
-    longitude: '',
-  });
-
-  const filtered = dummyLocations.filter((loc) =>
-    loc.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const res = await fetch('/api/carte', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    });
-
-    if (res.ok) {
-      setShowForm(false);
-      setForm({
-        name: '',
-        address: '',
-        city: '',
-        zip_code: '',
-        latitude: '',
-        longitude: '',
-      });
-    } else {
-      alert('Erreur lors de l’ajout');
+  // Récupération des lieux depuis l’API
+  const fetchLocations = async () => {
+    try {
+      const res = await fetch('/api/locations');
+      const data = await res.json();
+      setLocations(
+        data.map((loc: any) => ({
+          id: loc.location_id,
+          name: loc.name,
+        }))
+      );
+    } catch (err) {
+      console.error('Erreur chargement des lieux:', err);
     }
   };
+
+  useEffect(() => {
+    fetchLocations();
+  }, []);
+
+  const filtered = locations.filter((loc) => loc.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <>
@@ -87,88 +70,13 @@ export default function LocationSidebar() {
       </aside>
 
       {showForm && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg border border-gray-300">
-            <h2 className="text-xl font-bold mb-4 text-gray-800">Ajouter un lieu</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4 text-gray-800">
-              <input
-                type="text"
-                name="name"
-                placeholder="Nom du lieu"
-                value={form.name}
-                onChange={handleChange}
-                className="w-full border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="Adresse"
-                value={form.address}
-                onChange={handleChange}
-                className="w-full border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="Ville"
-                  value={form.city}
-                  onChange={handleChange}
-                  className="flex-1 border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <input
-                  type="text"
-                  name="zip_code"
-                  placeholder="Code postal"
-                  value={form.zip_code}
-                  onChange={handleChange}
-                  className="w-32 border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  name="latitude"
-                  placeholder="Latitude"
-                  value={form.latitude}
-                  onChange={handleChange}
-                  className="flex-1 border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <input
-                  type="text"
-                  name="longitude"
-                  placeholder="Longitude"
-                  value={form.longitude}
-                  onChange={handleChange}
-                  className="flex-1 border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  Enregistrer
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <AddLocationModal
+          onClose={() => setShowForm(false)}
+          onSuccess={() => {
+            setShowForm(false);
+            fetchLocations();
+          }}
+        />
       )}
     </>
   );

@@ -8,9 +8,10 @@ mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement>(null);
-
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  // 1. Initialisation de la carte
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || mapRef.current) return;
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
@@ -21,6 +22,5 @@ export default function Map() {
 
     return () => map.remove();
   }, []);
-
-  return <div ref={mapContainer} className="w-full h-full" />;
+  return <div ref={mapContainer} className="w-full h-full min-h-[500px]" />;
 }

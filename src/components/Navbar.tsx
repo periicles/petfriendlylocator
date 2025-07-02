@@ -1,12 +1,21 @@
+// src/components/Navbar.tsx
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || status === 'loading') return null;
 
   const isActive = (href: string) => pathname === href;
 
@@ -24,7 +33,6 @@ export default function Navbar() {
           >
             Accueil
           </Link>
-
           <Link
             href="/carte"
             className={
