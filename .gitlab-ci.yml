@@ -40,7 +40,7 @@ prettier:
 #########################
 # ----- GITLEAKS ----- #
 #########################
-gitleaks-job:
+gitleaks:
   stage: secrets
   image: alpine:3.21
   before_script:
