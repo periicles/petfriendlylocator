@@ -13,14 +13,22 @@ const prisma = new PrismaClient();
 beforeAll(async () => {
   process.env.DATABASE_URL = 'file:./test.db?mode=memory&cache=shared';
   await prisma.$connect();
-  await prisma.user.create({
-    data: {
-      user_id: 'user_mocked_id',
-      pseudo: 'testUser',
-      email: 'test@example.com',
-      password: 'hashed',
-    },
+
+  // Check if user already exists before creating
+  const existingUser = await prisma.user.findUnique({
+    where: { user_id: 'user_mocked_id' },
   });
+
+  if (!existingUser) {
+    await prisma.user.create({
+      data: {
+        user_id: 'user_mocked_id',
+        pseudo: 'testUser',
+        email: 'test@example.com',
+        password: 'hashed',
+      },
+    });
+  }
 });
 
 afterAll(async () => {

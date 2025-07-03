@@ -12,7 +12,8 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript', 'plugin:prettier/recommended'),
   {
-    files: ['**/*.{js,ts,jsx,tsx}'],
+    files: ['**/*.{ts,tsx}'],
+    ignores: ['coverage/**/*', 'node_modules/**/*', '.next/**/*'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.json',
