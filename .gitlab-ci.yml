@@ -12,7 +12,7 @@ stages:
   - secrets
   - build
   - publish
-  - deploy
+  # - deploy
 
 ###################
 # ----- LINT ----- #
@@ -85,33 +85,33 @@ publish:
 ######################
 # ----- DEPLOY ----- #
 ######################
-deploy:
-  stage: deploy
-  image: debian:12
-  before_script:
-    - apt update && apt install -y openssh-client git
-    - mkdir -p ~/.ssh
-    - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_ed25519
-    - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-  script:
-    # Envoie le fichier .env
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'DATABASE_URL=$DATABASE_URL' > ~/petfriendlylocator/.env"
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXTAUTH_SECRET=$NEXTAUTH_SECRET' >> ~/petfriendlylocator/.env"
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN' >> ~/petfriendlylocator/.env"
-    # Clone (ou met à jour) le repo sur la VM
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" '
-        cd ~/petfriendlylocator || git clone https://gitlab.com/Periicles/petfriendlylocator.git ~/petfriendlylocator;
-        cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME
-      '
-    # Lance docker compose
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" '
-        cd ~/petfriendlylocator &&
-        docker compose pull &&
-        docker compose down &&
-        docker compose up -d --build
-      '
+# deploy:
+#   stage: deploy
+#   image: debian:12
+#   before_script:
+#     - apt update && apt install -y openssh-client git
+#     - mkdir -p ~/.ssh
+#     - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+#     - chmod 600 ~/.ssh/id_ed25519
+#     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+#   script:
+#     # Envoie le fichier .env
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'DATABASE_URL=$DATABASE_URL' > ~/petfriendlylocator/.env"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXTAUTH_SECRET=$NEXTAUTH_SECRET' >> ~/petfriendlylocator/.env"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN' >> ~/petfriendlylocator/.env"
+#     # Clone (ou met à jour) le repo sur la VM
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#         cd ~/petfriendlylocator || git clone https://gitlab.com/Periicles/petfriendlylocator.git ~/petfriendlylocator;
+#         cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME
+#       '
+#     # Lance docker compose
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#         cd ~/petfriendlylocator &&
+#         docker compose pull &&
+#         docker compose down &&
+#         docker compose up -d --build
+#       '
