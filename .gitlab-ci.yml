@@ -1,0 +1,117 @@
+image: docker:28.3.0
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_TLS_CERTDIR: ''
+  IMAGE_NAME: $CI_REGISTRY_IMAGE/petfriendlylocator
+
+stages:
+  - lint
+  - secrets
+  - build
+  - publish
+  # - deploy
+
+###################
+# ----- LINT ----- #
+###################
+lint:
+  image: node:22-alpine
+  stage: lint
+  before_script:
+    - npm ci
+  script:
+    - npx eslint . --max-warnings=0
+    - npx prettier --check .
+###################
+# --- PRETTIER --- #
+###################
+prettier:
+  image: node:22-alpine
+  stage: lint
+  cache:
+    paths:
+      - node_modules/
+  script:
+    - npm ci
+    - npx prettier --check .
+#########################
+# ----- GITLEAKS ----- #
+#########################
+gitleaks:
+  stage: secrets
+  image: alpine:3.21
+  before_script:
+    - apk add --no-cache wget tar
+    - wget -O gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.27.2/gitleaks_8.27.2_linux_x64.tar.gz
+    - tar -xzf gitleaks.tar.gz
+    - mv gitleaks /usr/local/bin/
+  script:
+    - gitleaks detect --source=. --no-git --gitleaks-ignore-path=.gitleaksignore --verbose --redact
+  allow_failure: false
+######################
+# ----- BUILD ----- #
+######################
+build:
+  stage: build
+  script:
+    - docker info
+    - docker build -t petfriendlylocator .
+    - docker save petfriendlylocator -o petfriendlylocator.tar
+  artifacts:
+    paths:
+      - petfriendlylocator.tar
+    expire_in: 1 hour
+######################
+# ----- PUBLISH ---- #
+######################
+publish:
+  stage: publish
+  script:
+    - docker load -i petfriendlylocator.tar
+    # Login au registre Docker de GitLab
+    - echo "$CI_JOB_TOKEN" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    # Tag vers l'image unique de commit
+    - docker tag petfriendlylocator $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    # Tag vers l'image latest
+    - docker tag petfriendlylocator $IMAGE_NAME:latest
+    # Push les deux
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_NAME:latest
+  dependencies:
+    - build
+######################
+# ----- DEPLOY ----- #
+######################
+# deploy:
+#   stage: deploy
+#   image: debian:12
+#   before_script:
+#     - apt update && apt install -y openssh-client git
+#     - mkdir -p ~/.ssh
+#     - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+#     - chmod 600 ~/.ssh/id_ed25519
+#     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+#   script:
+#     # Envoie le fichier .env
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'DATABASE_URL=$DATABASE_URL' > ~/petfriendlylocator/.env"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXTAUTH_SECRET=$NEXTAUTH_SECRET' >> ~/petfriendlylocator/.env"
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN' >> ~/petfriendlylocator/.env"
+#     # Clone (ou met à jour) le repo sur la VM
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#         cd ~/petfriendlylocator || git clone https://gitlab.com/Periicles/petfriendlylocator.git ~/petfriendlylocator;
+#         cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME
+#       '
+#     # Lance docker compose
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#         cd ~/petfriendlylocator &&
+#         docker compose pull &&
+#         docker compose down &&
+#         docker compose up -d --build
+#       '

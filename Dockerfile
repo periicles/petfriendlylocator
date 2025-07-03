@@ -1,38 +1,53 @@
-# ---------- STAGE BASE : commun à dev & prod ----------
-FROM node:22 AS base
+# --------- BUILD STAGE ---------
+FROM node:22-alpine AS builder
+
+LABEL org.opencontainers.image.title="Pet Friendly Locator" \
+      org.opencontainers.image.authors="Periicles" \
+      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlylocator" \
+      org.opencontainers.image.vendor="Periicles"
 
 WORKDIR /app
 
-# Installation des dépendances (modifiées selon l'environnement ensuite)
-COPY package*.json ./
+# Ajoute les dépendances système nécessaires
+RUN apk add --no-cache git python3 make g++
 
-# Installation de toutes les dépendances (avec devDependencies)
-RUN npm install
+# Copie des fichiers nécessaires
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma
+COPY public ./public
 
-# ---------- STAGE DE DEV ----------
-FROM base AS dev
+# Installation des dépendances
+RUN npm ci
 
-# Variables d’environnement de dev
-ENV ENVIRONMENT=dev
+# Génération des fichiers Prisma
+RUN npx prisma generate
 
-# Lance le serveur dev
-ENTRYPOINT ["npm", "run", "dev"]
-
-# ---------- STAGE DE PROD ----------
-FROM base AS prod
-
-# Copie du reste de l’app
+# Copie du code source
 COPY . .
 
-# Génération du Prisma client + déploiement
-RUN npx prisma generate --schema=src/prisma/schema.prisma
-RUN npx prisma migrate deploy --schema=src/prisma/schema.prisma
-
-# Build de l’app Next.js
+# Build de l'application Next.js
 RUN npm run build
 
-# Variables d’environnement de prod
-ENV ENVIRONMENT=prod
+# --------- PRODUCTION STAGE ---------
+FROM node:22-alpine AS runner
 
-# Lance le serveur
-ENTRYPOINT ["npm", "start"]
+WORKDIR /app
+
+# Copie des fichiers nécessaires depuis builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+
+# Regénère les fichiers Prisma dans l'image finale (important pour runtime)
+RUN npx prisma generate
+
+# Définir la variable d'environnement de production
+ENV NODE_ENV=production
+
+# Expose le port
+EXPOSE 3000
+
+# Lancement de l'app
+CMD ["npm", "start"]
