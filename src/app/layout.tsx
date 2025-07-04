@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className="bg-vintage-light text-vintage-black">
-      <head />
+      <link rel="icon" href="/PFB.png" />
       <body className="min-h-screen isolate font-sans bg-vintage-light text-vintage-black">
         <Providers>
           <ClientNavbarWrapper />
-          <main className="pt-16">{children}</main>
+          <main className="pt-16 bg-[var(--vintage-beige)]">{children}</main>
         </Providers>
       </body>
     </html>
