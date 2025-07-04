@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { getServerSession } from 'next-auth';
 import ProfilePage from '@/app/profile/page';
-import { authOptions } from '@/lib/authOptions';
+import { authOptions } from '@/lib/auth';
 
 // Mock getServerSession from next-auth
 jest.mock('next-auth', () => ({
@@ -9,7 +9,7 @@ jest.mock('next-auth', () => ({
 }));
 
 // Mock authOptions
-jest.mock('@/lib/authOptions', () => ({
+jest.mock('@/lib/auth', () => ({
   authOptions: {},
 }));
 
