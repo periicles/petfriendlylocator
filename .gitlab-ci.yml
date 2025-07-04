@@ -95,8 +95,20 @@ deploy:
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
   script:
-    - scp -i ~/.ssh/id_ed25519 docker-compose.yml "$DEPLOY_USER@$DEPLOY_HOST:~/petfriendlylocator/"
+    # Crée le dossier si besoin
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
+
+    # Si le dépôt n’est pas cloné, on le clone. Sinon on fait un pull.
+    - |
+      ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+        if [ ! -d ~/petfriendlylocator/.git ]; then
+          git clone https://gitlab.com/periicles/petfriendlylocator.git ~/petfriendlylocator;
+        else
+          cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME;
+        fi
+      '
+
+    # Génère le fichier .env à partir des variables GitLab
     - |
       ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > ~/petfriendlylocator/.env" <<EOF
       DATABASE_URL=$DATABASE_URL
@@ -106,8 +118,11 @@ deploy:
       POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       POSTGRES_DB=$POSTGRES_DB
       EOF
+
+    # Lance ou redémarre les conteneurs via Docker Compose
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" '
       cd ~/petfriendlylocator &&
       docker compose pull &&
+      docker compose down &&
       docker compose up -d
       '
