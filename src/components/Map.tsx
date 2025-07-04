@@ -4,15 +4,16 @@ import mapboxgl from 'mapbox-gl';
 import { useEffect, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
-
 export default function Map() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
-  // 1. Initialisation de la carte
-  useEffect(() => {
-    if (!mapContainer.current || mapRef.current) return;
 
+  useEffect(() => {
+    if (!mapContainer.current || mapRef.current) {
+      return;
+    }
+
+    mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',

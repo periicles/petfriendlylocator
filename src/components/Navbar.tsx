@@ -55,7 +55,10 @@ export default function Navbar() {
               >
                 Profil
               </Link>
-              <button onClick={() => signOut()} className="text-gray-700 hover:text-red-500">
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
+                className="text-gray-700 hover:text-red-500"
+              >
                 Déconnexion
               </button>
             </>
