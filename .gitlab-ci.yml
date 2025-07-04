@@ -107,7 +107,7 @@ deploy:
       POSTGRES_DB=$POSTGRES_DB
       EOF
     - ssh "$DEPLOY_USER@$DEPLOY_HOST" '
-        cd ~/petfriendlylocator &&
-        docker compose pull &&
-        docker compose up -d
+      cd ~/petfriendlylocator &&
+      docker compose pull &&
+      docker compose up -d
       '
