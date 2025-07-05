@@ -18,7 +18,7 @@ model User {
   pseudo     String   @unique
   email      String   @unique
   created_at DateTime @default(now())
-  updated_at  DateTime?
+  updated_at  DateTime? @updatedAt
   password   String
 
   roles      UserRole @default(USER)
@@ -35,7 +35,7 @@ model Location {
   zip_code    Int
   city        String
   created_at  DateTime @default(now())
-  updated_at  DateTime?
+  updated_at  DateTime? @updatedAt
   latitude    String
   longitude   String
 
