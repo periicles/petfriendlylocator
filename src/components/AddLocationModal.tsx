@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { CreateLocationInput } from '@/types/createLocationInput';
+import { TCreateLocationInput } from '@/types/createLocationInput';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function AddLocationModal({ onClose, onSuccess }: Props) {
-  const [form, setForm] = useState<CreateLocationInput>({
+  const [form, setForm] = useState<TCreateLocationInput>({
     name: '',
     description: '',
     address: '',
