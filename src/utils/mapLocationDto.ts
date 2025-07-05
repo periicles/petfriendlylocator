@@ -14,6 +14,7 @@ export function mapLocationToDTO(location: Location): LocationDTO {
     created_at: location.created_at.toISOString(),
     updated_at: location.updated_at ? location.updated_at.toISOString() : null,
     user_id: location.user_id ?? null,
+    location_type: location.location_type,
   };
 }
 
