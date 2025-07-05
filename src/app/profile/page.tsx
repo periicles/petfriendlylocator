@@ -90,7 +90,7 @@ export default function UserProfile() {
           </div>
           <button
             type="submit"
-            className="bg-[var(--vintage-taupe)] text-white py-2 px-4 rounded hover:opacity-90 transition"
+            className="bg-[var(--vintage-taupe)] text-white py-2 px-4 rounded hover:opacity-90 transition cursor-pointer"
           >
             Enregistrer les modifications
           </button>

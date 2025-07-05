@@ -12,10 +12,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className="bg-vintage-light text-vintage-black">
       <link rel="icon" href="/PFB.png" />
-      <body className="min-h-screen isolate font-sans bg-vintage-light text-vintage-black">
+      <body className="min-h-screen flex flex-col isolate font-sans bg-vintage-light text-vintage-black">
         <Providers>
           <ClientNavbarWrapper />
-          <main className="pt-16 bg-[var(--vintage-beige)]">{children}</main>
+          <main className="flex-1 pt-16 bg-[var(--vintage-beige)]">{children}</main>
+          <footer className="py-4 text-center text-sm bg-[var(--vintage-light)] text-[var(--vintage-taupe)]">
+            © 2025 Pet Friendly Locator
+          </footer>
         </Providers>
       </body>
     </html>

@@ -34,12 +34,12 @@ export default async function UserPlaces() {
               key={location.location_id}
               className="rounded-xl shadow p-4"
               style={{
-                backgroundColor: 'var(--vintage-beige)',
+                backgroundColor: 'var(--vintage-light)',
                 color: 'var(--vintage-black)',
               }}
             >
               <h3 className="text-lg font-semibold">{location.name}</h3>
-              <p className="text-sm" style={{ color: 'var(--vintage-taupe)' }}>
+              <p className="text-sm" style={{ color: 'var(--vintage-black)' }}>
                 {location.address}, {location.city} {location.zip_code}
               </p>
               <p className="text-xs mt-2 text-right text-gray-500">
