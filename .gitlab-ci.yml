@@ -12,7 +12,7 @@ stages:
   - secrets
   - build
   - publish
-  - deploy
+  # - deploy
 
 ###################
 # ----- LINT ----- #
@@ -85,44 +85,44 @@ publish:
 ######################
 # ----- DEPLOY ----- #
 ######################
-deploy:
-  stage: deploy
-  image: debian:12
-  before_script:
-    - apt update && apt install -y openssh-client git
-    - mkdir -p ~/.ssh
-    - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_ed25519
-    - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-  script:
-    # Crée le dossier si besoin
-    - ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
+# deploy:
+#   stage: deploy
+#   image: debian:12
+#   before_script:
+#     - apt update && apt install -y openssh-client git
+#     - mkdir -p ~/.ssh
+#     - echo "$DEPLOY_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+#     - chmod 600 ~/.ssh/id_ed25519
+#     - ssh-keyscan "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+#   script:
+#     # Crée le dossier si besoin
+#     - ssh "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p ~/petfriendlylocator"
 
-    # Si le dépôt n’est pas cloné, on le clone. Sinon on fait un pull.
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" '
-        if [ ! -d ~/petfriendlylocator/.git ]; then
-          git clone https://gitlab.com/periicles/petfriendlylocator.git ~/petfriendlylocator;
-        else
-          cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME;
-        fi
-      '
+#     # Si le dépôt n’est pas cloné, on le clone. Sinon on fait un pull.
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#         if [ ! -d ~/petfriendlylocator/.git ]; then
+#           git clone https://gitlab.com/periicles/petfriendlylocator.git ~/petfriendlylocator;
+#         else
+#           cd ~/petfriendlylocator && git pull origin $CI_COMMIT_REF_NAME;
+#         fi
+#       '
 
-    # Génère le fichier .env à partir des variables GitLab
-    - |
-      ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > ~/petfriendlylocator/.env" <<EOF
-      DATABASE_URL=$DATABASE_URL
-      NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-      NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
-      POSTGRES_USER=$POSTGRES_USER
-      POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      POSTGRES_DB=$POSTGRES_DB
-      EOF
+#     # Génère le fichier .env à partir des variables GitLab
+#     - |
+#       ssh "$DEPLOY_USER@$DEPLOY_HOST" "cat > ~/petfriendlylocator/.env" <<EOF
+#       DATABASE_URL=$DATABASE_URL
+#       NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+#       NEXT_PUBLIC_MAPBOX_TOKEN=$NEXT_PUBLIC_MAPBOX_TOKEN
+#       POSTGRES_USER=$POSTGRES_USER
+#       POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+#       POSTGRES_DB=$POSTGRES_DB
+#       EOF
 
-    # Lance ou redémarre les conteneurs via Docker Compose
-    - ssh "$DEPLOY_USER@$DEPLOY_HOST" '
-      cd ~/petfriendlylocator &&
-      docker compose pull &&
-      docker compose down &&
-      docker compose up -d
-      '
+#     # Lance ou redémarre les conteneurs via Docker Compose
+#     - ssh "$DEPLOY_USER@$DEPLOY_HOST" '
+#       cd ~/petfriendlylocator &&
+#       docker compose pull &&
+#       docker compose down &&
+#       docker compose up -d
+#       '

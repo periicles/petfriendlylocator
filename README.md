@@ -22,14 +22,15 @@ Bienvenue sur **Pet Friendly Locator**, une application web dédiée à la déco
 - 🌐 **Page d'accueil** avec un grand scroller pour présenter l'idée du projet
 - 📌 **Carte interactive** affichant les lieux pet-friendly autour de Bordeaux
 - 🔍 **Barre de recherche** et liste des lieux associée
-- ➕ **Ajout de lieux** via un bouton flottant (uniquement pour utilisateurs connectés)
+- ➕ **Ajout de lieux** via un formulaire flottant (uniquement pour utilisateurs connectés)
 - 👤 **Page profil utilisateur** :
   - Visualisation et édition des données personnelles
   - Liste des lieux ajoutés
-- 🛡️ **Système d'administration** *(à venir)* :
+  - Liste des avis laissés _(à venir)_
+- 🛡️ **Système d'administration** _(à venir)_ :
   - Modération des lieux proposés
   - Validation des avis
-- ⭐ **Système d’avis** *(à venir)* :
+- ⭐ **Système d’avis** _(à venir)_ :
   - Les utilisateurs pourront commenter et noter les lieux
 
 ---
@@ -76,6 +77,8 @@ npm run migrate
 npm run dev
 ```
 
+---
+
 ## 🧪 Tests
 
 Pour exécuter les tests, utilisez la commande suivante :
@@ -86,6 +89,8 @@ npm run test
 
 Cela executera les test Jest présents dans le dossier `__tests__`.
 
+---
+
 ## 🐳 Docker
 
 Pour exécuter l'application avec Docker, assurez-vous d'avoir Docker installé sur votre machine. Ensuite, vous pouvez construire et démarrer les conteneurs avec :
@@ -93,6 +98,8 @@ Pour exécuter l'application avec Docker, assurez-vous d'avoir Docker installé 
 ```bash
 docker-compose up --build
 ```
+
+---
 
 ## 🔧 Architecture du projet
 
@@ -148,6 +155,8 @@ docker-compose up --build
     ├── types
     └── utils
 ```
+
+---
 
 ## 🐶 À propos
 
