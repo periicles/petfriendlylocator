@@ -1,4 +1,4 @@
-export type CreateLocationInput = {
+export type TCreateLocationInput = {
   name: string;
   description?: string;
   address: string;

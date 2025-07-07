@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         if (!isValid) return null;
 
         return {
-          id: user.user_id, // 👈 important pour .sub
+          id: user.user_id,
           email: user.email,
           name: user.pseudo,
         };

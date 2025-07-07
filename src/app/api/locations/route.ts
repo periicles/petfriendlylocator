@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse, NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import type { CreateLocationInput } from '@/types/createLocationInput';
+import type { TCreateLocationInput } from '@/types/createLocationInput';
 import type { LocationDTO } from '@/types/locationDto';
 import { mapLocationsToDTO } from '@/utils/mapLocationDto';
 import { LocationType } from '@prisma/client';
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   const userId = token.sub;
 
-  const body: CreateLocationInput = await req.json();
+  const body: TCreateLocationInput = await req.json();
 
   const prismaResult = await prisma.location.create({
     data: {

@@ -41,7 +41,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 
 # Regénère les fichiers Prisma dans l'image finale (important pour runtime)
-RUN npx prisma generate
+RUN npx prisma generate --no-engine
 
 # Définir la variable d'environnement de production
 ENV NODE_ENV=production

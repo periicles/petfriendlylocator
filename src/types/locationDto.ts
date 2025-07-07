@@ -10,4 +10,5 @@ export type LocationDTO = {
   created_at: string;
   updated_at?: string | null;
   user_id?: string | null;
+  location_type: string;
 };
