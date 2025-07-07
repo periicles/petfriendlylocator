@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import AddIcon from '@mui/icons-material/Add';
 import AddLocationModal from './AddLocationModal';
@@ -8,35 +8,19 @@ import AddLocationModal from './AddLocationModal';
 type SidebarLocation = {
   id: string;
   name: string;
+  latitude: number;
+  longitude: number;
 };
 
-export default function LocationSidebar() {
-  const { data: session } = useSession();
+type Props = {
+  locations: SidebarLocation[];
+  refreshLocations: () => void;
+};
 
-  const [locations, setLocations] = useState<SidebarLocation[]>([]);
+export default function LocationSidebar({ locations, refreshLocations }: Props) {
+  const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
-
-  // Récupération des lieux depuis l’API
-  const fetchLocations = async () => {
-    try {
-      const res = await fetch('/api/locations');
-      const data = await res.json();
-      setLocations(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.map((loc: any) => ({
-          id: loc.location_id,
-          name: loc.name,
-        }))
-      );
-    } catch (err) {
-      console.error('Erreur chargement des lieux:', err);
-    }
-  };
-
-  useEffect(() => {
-    fetchLocations();
-  }, []);
 
   const filtered = locations.filter((loc) => loc.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -76,7 +60,7 @@ export default function LocationSidebar() {
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
-            fetchLocations();
+            refreshLocations();
           }}
         />
       )}
