@@ -35,7 +35,7 @@ export default function RegisterPage() {
           placeholder="Pseudo"
           value={pseudo}
           onChange={(e) => setPseudo(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--vintage-taupe)]"
           required
         />
         <input
@@ -43,7 +43,7 @@ export default function RegisterPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--vintage-taupe)]"
           required
         />
         <input
@@ -51,7 +51,7 @@ export default function RegisterPage() {
           placeholder="Mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--vintage-taupe)]"
           required
         />
         <button type="submit" className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
