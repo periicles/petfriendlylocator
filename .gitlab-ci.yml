@@ -12,7 +12,7 @@ stages:
   - secrets
   - build
   - publish
-  # - deploy
+  - deploy
 
 ###################
 # ----- LINT ----- #
