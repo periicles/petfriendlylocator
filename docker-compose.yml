@@ -1,6 +1,6 @@
 services:
   app:
-    image: registry.gitlab.com/periicles/petfriendlylocator/petfriendlylocator:latest
+    image: ghcr.io/periicles/petfriendlylocator:latest
     restart: always
     container_name: petfriendlylocator_app
     env_file:
