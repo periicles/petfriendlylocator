@@ -62,7 +62,6 @@ describe('App Router - /api/locations integration', () => {
     const getRes = await GET();
     expect(getRes.status).toBe(200);
     const getData = await getRes.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(getData.some((l: any) => l.name === 'Parc Bordelais')).toBe(true);
   });
 });

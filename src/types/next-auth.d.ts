@@ -1,4 +1,5 @@
-import { DefaultSession, DefaultUser } from 'next-auth';
+/* eslint-disable no-unused-vars */
+import 'next-auth';
 
 declare module 'next-auth' {
   interface Session {
@@ -6,10 +7,12 @@ declare module 'next-auth' {
       id: string;
       email: string;
       pseudo: string;
-    } & DefaultSession['user'];
+      name?: string | null;
+      image?: string | null;
+    };
   }
 
-  interface User extends DefaultUser {
+  interface User {
     id: string;
   }
 }
