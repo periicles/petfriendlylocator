@@ -3,12 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { signIn } from 'next-auth/react';
 import LoginPage from '@/app/login/page';
 
-// Mock next-auth/react
 jest.mock('next-auth/react', () => ({
   signIn: jest.fn(),
 }));
 
-// Mock Next.js Link component
 jest.mock('next/link', () => {
   return function MockLink({ children, href }: { children: React.ReactNode; href: string }) {
     return <a href={href}>{children}</a>;
@@ -26,18 +24,18 @@ describe('LoginPage', () => {
     render(<LoginPage />);
 
     expect(screen.getByText('Connexion')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Adresse email')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Mot de passe')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Se connecter' })).toBeInTheDocument();
-    expect(screen.getByText('Pas encore de compte ?')).toBeInTheDocument();
     expect(screen.getByText('Créer un compte')).toBeInTheDocument();
+    expect(screen.getByText('Mot de passe oublié ?')).toBeInTheDocument();
   });
 
   it('updates input values when typing', async () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
     await user.type(emailInput, 'test@example.com');
@@ -53,7 +51,7 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button', { name: 'Se connecter' });
 
@@ -96,26 +94,22 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button', { name: 'Se connecter' });
 
     await user.type(emailInput, 'user@test.com');
     await user.type(passwordInput, 'wrongpass');
-
-    // Click the login button
     await user.click(loginButton);
 
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalled();
     });
 
-    // Check that error message is displayed
     await waitFor(() => {
       expect(screen.getByText('Une erreur est survenue lors de la connexion')).toBeInTheDocument();
     });
 
-    // Component should still be rendered and functional
     expect(screen.getByText('Connexion')).toBeInTheDocument();
     expect(loginButton).toBeEnabled();
   });
@@ -126,20 +120,18 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button', { name: 'Se connecter' });
 
     await user.type(emailInput, 'user@test.com');
     await user.type(passwordInput, 'wrongpass');
-
     await user.click(loginButton);
 
     await waitFor(() => {
       expect(mockSignIn).toHaveBeenCalled();
     });
 
-    // Check that error message is displayed
     await waitFor(() => {
       expect(screen.getByText('Identifiants incorrects')).toBeInTheDocument();
     });
@@ -157,22 +149,19 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button');
 
     await user.type(emailInput, 'user@test.com');
     await user.type(passwordInput, 'password');
-
     await user.click(loginButton);
 
-    // Check loading state
     expect(screen.getByText('Connexion...')).toBeInTheDocument();
     expect(loginButton).toBeDisabled();
     expect(emailInput).toBeDisabled();
     expect(passwordInput).toBeDisabled();
 
-    // Resolve the promise
     resolveSignIn!();
 
     await waitFor(() => {
@@ -183,12 +172,11 @@ describe('LoginPage', () => {
 
   it('clears error when attempting new login', async () => {
     const user = userEvent.setup();
-    // First, trigger an error
     mockSignIn.mockRejectedValueOnce(new Error('Login failed'));
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button', { name: 'Se connecter' });
 
@@ -196,18 +184,13 @@ describe('LoginPage', () => {
     await user.type(passwordInput, 'wrongpass');
     await user.click(loginButton);
 
-    // Wait for error to appear
     await waitFor(() => {
       expect(screen.getByText('Une erreur est survenue lors de la connexion')).toBeInTheDocument();
     });
 
-    // Now mock a successful login
     mockSignIn.mockResolvedValueOnce(undefined);
-
-    // Try again
     await user.click(loginButton);
 
-    // Error should be cleared during loading
     await waitFor(() => {
       expect(
         screen.queryByText('Une erreur est survenue lors de la connexion')
@@ -219,30 +202,27 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
-    // Type in email field
     await user.type(emailInput, 'first@test.com');
     expect(emailInput).toHaveValue('first@test.com');
     expect(passwordInput).toHaveValue('');
 
-    // Type in password field
     await user.type(passwordInput, 'mypassword');
     expect(emailInput).toHaveValue('first@test.com');
     expect(passwordInput).toHaveValue('mypassword');
 
-    // Clear email and type new value
     await user.clear(emailInput);
     await user.type(emailInput, 'second@test.com');
     expect(emailInput).toHaveValue('second@test.com');
-    expect(passwordInput).toHaveValue('mypassword'); // Should remain unchanged
+    expect(passwordInput).toHaveValue('mypassword');
   });
 
   it('has correct input field attributes', () => {
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
     expect(emailInput).toHaveAttribute('type', 'email');
@@ -256,75 +236,49 @@ describe('LoginPage', () => {
     expect(registerLink).toHaveAttribute('href', '/register');
   });
 
-  it('has correct CSS classes and structure', () => {
-    const { container } = render(<LoginPage />);
+  it('has correct link to forgot password page', () => {
+    render(<LoginPage />);
 
-    // Check main container classes
-    const mainContainer = container.firstChild as HTMLElement;
-    expect(mainContainer).toHaveClass(
-      'flex',
-      'items-center',
-      'justify-center',
-      'min-h-screen',
-      'bg-gray-100',
-      'px-4'
-    );
-
-    // Check form container classes
-    const formContainer = screen.getByText('Connexion').closest('div');
-    expect(formContainer).toHaveClass(
-      'w-full',
-      'max-w-md',
-      'bg-white',
-      'border',
-      'border-gray-300',
-      'rounded-lg',
-      'shadow',
-      'p-6'
-    );
-
-    // Check heading classes
-    const heading = screen.getByText('Connexion');
-    expect(heading).toHaveClass('text-2xl', 'font-bold', 'mb-6', 'text-gray-800', 'text-center');
-    expect(heading.tagName).toBe('H1');
+    const forgotLink = screen.getByText('Mot de passe oublié ?');
+    expect(forgotLink).toHaveAttribute('href', '/forgot-password');
   });
 
-  it('has correct button classes and structure', () => {
+  it('has correct CSS classes on main container', () => {
+    const { container } = render(<LoginPage />);
+
+    const mainContainer = container.firstChild as HTMLElement;
+    expect(mainContainer).toHaveClass('flex', 'items-center', 'justify-center', 'min-h-screen', 'px-4');
+  });
+
+  it('has correct CSS classes on form container', () => {
+    render(<LoginPage />);
+
+    const formContainer = screen.getByText('Connexion').closest('div');
+    expect(formContainer).toHaveClass('w-full', 'max-w-sm', 'rounded-xl', 'shadow-lg', 'p-6', 'text-center');
+  });
+
+  it('has correct heading tag and classes', () => {
+    render(<LoginPage />);
+
+    const heading = screen.getByText('Connexion');
+    expect(heading).toHaveClass('text-xl', 'font-bold', 'mb-6');
+    expect(heading.tagName).toBe('H2');
+  });
+
+  it('has correct button classes', () => {
     render(<LoginPage />);
 
     const button = screen.getByRole('button', { name: 'Se connecter' });
-    expect(button).toHaveClass(
-      'w-full',
-      'bg-blue-600',
-      'text-white',
-      'font-semibold',
-      'py-2',
-      'rounded',
-      'hover:bg-blue-700',
-      'transition'
-    );
+    expect(button).toHaveClass('w-full', 'text-white', 'py-2', 'rounded-md', 'font-semibold', 'transition');
   });
 
   it('has correct input field classes', () => {
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
-    const expectedClasses = [
-      'w-full',
-      'border',
-      'border-gray-400',
-      'text-gray-800',
-      'bg-white',
-      'rounded',
-      'px-3',
-      'py-2',
-      'mb-4',
-      'focus:outline-none',
-      'focus:ring-2',
-      'focus:ring-blue-500',
-    ];
+    const expectedClasses = ['w-full', 'border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'focus:outline-none', 'focus:ring-2'];
 
     expectedClasses.forEach((className) => {
       expect(emailInput).toHaveClass(className);
@@ -338,11 +292,10 @@ describe('LoginPage', () => {
 
     render(<LoginPage />);
 
-    const emailInput = screen.getByPlaceholderText('Email');
+    const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
     const loginButton = screen.getByRole('button', { name: 'Se connecter' });
 
-    // First login attempt
     await user.type(emailInput, 'first@test.com');
     await user.type(passwordInput, 'pass1');
     await user.click(loginButton);
@@ -356,7 +309,6 @@ describe('LoginPage', () => {
       });
     });
 
-    // Clear and try again
     await user.clear(emailInput);
     await user.clear(passwordInput);
     await user.type(emailInput, 'second@test.com');
@@ -379,10 +331,10 @@ describe('LoginPage', () => {
     render(<LoginPage />);
 
     expect(screen.getByText('Connexion')).toBeInTheDocument();
-    expect(screen.getByText('Pas encore de compte ?')).toBeInTheDocument();
+    expect(screen.getByText('Mot de passe oublié ?')).toBeInTheDocument();
     expect(screen.getByText('Créer un compte')).toBeInTheDocument();
     expect(screen.getByText('Se connecter')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Adresse email')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Mot de passe')).toBeInTheDocument();
   });
 });
