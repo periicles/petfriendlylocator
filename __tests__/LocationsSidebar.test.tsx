@@ -7,11 +7,9 @@ import userEvent from '@testing-library/user-event';
 import { useSession } from 'next-auth/react';
 import LocationSidebar from '@/components/LocationsSidebar';
 
-// Mock next-auth
 jest.mock('next-auth/react');
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
-// Mock AddLocationModal
 jest.mock('@/components/AddLocationModal', () => {
   return function MockAddLocationModal({
     onClose,
@@ -33,40 +31,29 @@ jest.mock('@/components/AddLocationModal', () => {
   };
 });
 
-// Mock Material-UI AddIcon
 jest.mock('@mui/icons-material/Add', () => {
   return function MockAddIcon() {
     return <span data-testid="add-icon">+</span>;
   };
 });
 
-// Mock fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-
 const mockLocations = [
-  { location_id: '1', name: 'Park Central' },
-  { location_id: '2', name: 'Beach Resort' },
-  { location_id: '3', name: 'Mountain View' },
+  { id: '1', name: 'Park Central', latitude: 44.84, longitude: -0.58 },
+  { id: '2', name: 'Beach Resort', latitude: 44.85, longitude: -0.57 },
+  { id: '3', name: 'Mountain View', latitude: 44.86, longitude: -0.56 },
 ];
+
+const mockRefreshLocations = jest.fn();
 
 describe('LocationSidebar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: async () => mockLocations,
-    });
   });
 
   it('renders search input', () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
     expect(screen.getByPlaceholderText('Rechercher un lieu...')).toBeInTheDocument();
   });
@@ -78,31 +65,25 @@ describe('LocationSidebar', () => {
       update: jest.fn(),
     });
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
     expect(screen.getByTestId('add-icon')).toBeInTheDocument();
   });
 
   it('does not render add button when user is not logged in', () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
     expect(screen.queryByTestId('add-icon')).not.toBeInTheDocument();
   });
 
   it('has correct responsive CSS classes', () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    const { container } = render(<LocationSidebar />);
+    const { container } = render(
+      <LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />
+    );
 
     const aside = container.querySelector('aside');
     expect(aside).toHaveClass(
@@ -116,68 +97,21 @@ describe('LocationSidebar', () => {
     );
   });
 
-  it('fetches locations on component mount', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+  it('displays locations from props', () => {
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/locations');
-    });
-  });
-
-  it('displays fetched locations', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
-
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-      expect(screen.getByText('Beach Resort')).toBeInTheDocument();
-      expect(screen.getByText('Mountain View')).toBeInTheDocument();
-    });
-  });
-
-  it('handles fetch error gracefully', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
-    mockFetch.mockRejectedValueOnce(new Error('Fetch failed'));
-
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith('Erreur chargement des lieux:', expect.any(Error));
-    });
-
-    consoleSpy.mockRestore();
+    expect(screen.getByText('Park Central')).toBeInTheDocument();
+    expect(screen.getByText('Beach Resort')).toBeInTheDocument();
+    expect(screen.getByText('Mountain View')).toBeInTheDocument();
   });
 
   it('filters locations based on search input', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-    });
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
@@ -188,18 +122,10 @@ describe('LocationSidebar', () => {
   });
 
   it('search is case insensitive', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-    });
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'BEACH');
@@ -209,18 +135,10 @@ describe('LocationSidebar', () => {
   });
 
   it('shows all locations when search is cleared', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-    });
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
@@ -239,7 +157,7 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
     const addButton = screen.getByRole('button');
     await user.click(addButton);
@@ -255,18 +173,15 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
-    const addButton = screen.getByRole('button');
-    await user.click(addButton);
-
-    const closeButton = screen.getByTestId('modal-close');
-    await user.click(closeButton);
+    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTestId('modal-close'));
 
     expect(screen.queryByTestId('add-location-modal')).not.toBeInTheDocument();
   });
 
-  it('refetches locations and closes modal on success', async () => {
+  it('calls refreshLocations and closes modal on success', async () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: '1', email: 'test@test.com' } },
       status: 'authenticated',
@@ -274,37 +189,19 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith('/api/locations');
-    });
-
-    const addButton = screen.getByRole('button');
-    await user.click(addButton);
-
-    const successButton = screen.getByTestId('modal-success');
-    await user.click(successButton);
+    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTestId('modal-success'));
 
     expect(screen.queryByTestId('add-location-modal')).not.toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-    });
+    expect(mockRefreshLocations).toHaveBeenCalledTimes(1);
   });
 
-  it('renders location items with correct styling', async () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
+  it('renders location items with correct styling', () => {
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-    });
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
     const locationItems = screen.getAllByRole('listitem');
     expect(locationItems).toHaveLength(3);
@@ -315,17 +212,9 @@ describe('LocationSidebar', () => {
   });
 
   it('handles empty location list', () => {
-    mockUseSession.mockReturnValue({
-      data: null,
-      status: 'unauthenticated',
-      update: jest.fn(),
-    });
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    });
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
 
     const list = screen.getByRole('list');
     expect(list).toBeInTheDocument();
@@ -340,19 +229,13 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Park Central')).toBeInTheDocument();
-    });
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
 
-    const addButton = screen.getByRole('button');
-    await user.click(addButton);
-    const closeButton = screen.getByTestId('modal-close');
-    await user.click(closeButton);
+    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTestId('modal-close'));
 
     expect(searchInput).toHaveValue('park');
     expect(screen.getByText('Park Central')).toBeInTheDocument();

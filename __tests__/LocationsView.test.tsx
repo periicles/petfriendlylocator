@@ -5,6 +5,8 @@
 import { render } from '@testing-library/react';
 import LocationsView from '@/components/LocationsView';
 
+global.fetch = jest.fn().mockResolvedValue({ json: async () => [] });
+
 // Mock the Map component since it uses Mapbox which requires external dependencies
 jest.mock('@/components/Map', () => {
   return function MockedMap() {

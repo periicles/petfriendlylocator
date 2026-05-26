@@ -14,6 +14,7 @@ jest.mock('mapbox-gl', () => ({
     remove: jest.fn(),
     on: jest.fn(),
     off: jest.fn(),
+    loaded: jest.fn().mockReturnValue(false),
   })),
 }));
 
@@ -33,19 +34,18 @@ describe('Map Component', () => {
   });
 
   it('renders map container with correct classes', () => {
-    const { container } = render(<Map />);
+    const { container } = render(<Map locations={[]} />);
 
     const mapContainer = container.firstChild as HTMLElement;
     expect(mapContainer).toHaveClass('w-full', 'h-full', 'min-h-[500px]');
   });
 
   it('sets mapbox access token from environment variable', () => {
-    // Access token is set when module is imported, not when component renders
     expect(process.env.NEXT_PUBLIC_MAPBOX_TOKEN).toBe('test-token');
   });
 
   it('initializes mapbox map with correct configuration', () => {
-    const { container } = render(<Map />);
+    const { container } = render(<Map locations={[]} />);
 
     expect(mockMapboxgl.Map).toHaveBeenCalledWith({
       container: container.firstChild,
@@ -61,31 +61,27 @@ describe('Map Component', () => {
       remove: mockRemove,
       on: jest.fn(),
       off: jest.fn(),
+      loaded: jest.fn().mockReturnValue(false),
     }));
 
-    const { unmount } = render(<Map />);
+    const { unmount } = render(<Map locations={[]} />);
     unmount();
 
     expect(mockRemove).toHaveBeenCalled();
   });
 
   it('does not initialize map twice', () => {
-    const { rerender } = render(<Map />);
+    const { rerender } = render(<Map locations={[]} />);
 
-    // Clear the mock call count
     (mockMapboxgl.Map as jest.Mock).mockClear();
 
-    // Re-render the component
-    rerender(<Map />);
+    rerender(<Map locations={[]} />);
 
-    // Map should not be initialized again
     expect(mockMapboxgl.Map).not.toHaveBeenCalled();
   });
 
   it('handles missing container gracefully', () => {
-    // This test would require a more complex mock setup
-    // For now, we'll just test that the component renders without crashing
-    const { container } = render(<Map />);
+    const { container } = render(<Map locations={[]} />);
     expect(container.firstChild).toBeInTheDocument();
   });
 });
