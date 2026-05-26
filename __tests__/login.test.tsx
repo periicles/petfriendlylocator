@@ -247,14 +247,27 @@ describe('LoginPage', () => {
     const { container } = render(<LoginPage />);
 
     const mainContainer = container.firstChild as HTMLElement;
-    expect(mainContainer).toHaveClass('flex', 'items-center', 'justify-center', 'min-h-screen', 'px-4');
+    expect(mainContainer).toHaveClass(
+      'flex',
+      'items-center',
+      'justify-center',
+      'min-h-screen',
+      'px-4'
+    );
   });
 
   it('has correct CSS classes on form container', () => {
     render(<LoginPage />);
 
     const formContainer = screen.getByText('Connexion').closest('div');
-    expect(formContainer).toHaveClass('w-full', 'max-w-sm', 'rounded-xl', 'shadow-lg', 'p-6', 'text-center');
+    expect(formContainer).toHaveClass(
+      'w-full',
+      'max-w-sm',
+      'rounded-xl',
+      'shadow-lg',
+      'p-6',
+      'text-center'
+    );
   });
 
   it('has correct heading tag and classes', () => {
@@ -269,7 +282,14 @@ describe('LoginPage', () => {
     render(<LoginPage />);
 
     const button = screen.getByRole('button', { name: 'Se connecter' });
-    expect(button).toHaveClass('w-full', 'text-white', 'py-2', 'rounded-md', 'font-semibold', 'transition');
+    expect(button).toHaveClass(
+      'w-full',
+      'text-white',
+      'py-2',
+      'rounded-md',
+      'font-semibold',
+      'transition'
+    );
   });
 
   it('has correct input field classes', () => {
@@ -278,7 +298,17 @@ describe('LoginPage', () => {
     const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
-    const expectedClasses = ['w-full', 'border', 'border-gray-300', 'rounded', 'px-3', 'py-2', 'mb-4', 'focus:outline-none', 'focus:ring-2'];
+    const expectedClasses = [
+      'w-full',
+      'border',
+      'border-gray-300',
+      'rounded',
+      'px-3',
+      'py-2',
+      'mb-4',
+      'focus:outline-none',
+      'focus:ring-2',
+    ];
 
     expectedClasses.forEach((className) => {
       expect(emailInput).toHaveClass(className);

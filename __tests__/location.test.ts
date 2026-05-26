@@ -18,11 +18,10 @@ import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { prisma } from '@/lib/prisma';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mockGetToken = getToken as jest.MockedFunction<any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const mockFindMany = prisma.location.findMany as jest.MockedFunction<any>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const mockCreate = prisma.location.create as jest.MockedFunction<any>;
 
 const mockLocationRecord = {
@@ -103,7 +102,7 @@ describe('POST /api/locations', () => {
     expect(mockCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ user_id: 'user_mocked_id', location_type: 'PARK' }),
-      }),
+      })
     );
   });
 });
