@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { withAccelerate } from '@prisma/extension-accelerate';
 
-const globalForPrisma = globalThis as unknown as { prisma: ReturnType<typeof makePrisma> };
+type PrismaInstance = ReturnType<typeof makePrisma>;
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaInstance | undefined };
 
 function makePrisma() {
   return new PrismaClient({
@@ -9,6 +11,17 @@ function makePrisma() {
   }).$extends(withAccelerate());
 }
 
-export const prisma = globalForPrisma.prisma ?? makePrisma();
+function getClient(): PrismaInstance {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = makePrisma();
+  }
+  return globalForPrisma.prisma;
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Proxy defers PrismaClient instantiation to the first actual DB call,
+// preventing build-time failures when DATABASE_URL is absent (e.g. Docker build).
+export const prisma: PrismaInstance = new Proxy({} as PrismaInstance, {
+  get(_, prop) {
+    return (getClient() as unknown as Record<string | symbol, unknown>)[prop];
+  },
+});
