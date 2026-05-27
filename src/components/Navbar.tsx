@@ -10,9 +10,11 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const [isMounted, setIsMounted] = useState(false);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   if (!isMounted || status === 'loading') return null;
 

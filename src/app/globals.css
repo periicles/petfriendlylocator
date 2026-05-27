@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+@theme {
+  --color-vintage-light: #F2F2F2;
+  --color-vintage-beige: #EAE4D5;
+  --color-vintage-taupe: #B6B09F;
+  --color-vintage-black: #000000;
+}
+
 :root {
   /* Couleurs claires par défaut */
   --background: #ffffff;

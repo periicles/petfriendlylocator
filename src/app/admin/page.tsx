@@ -6,7 +6,6 @@ type Tab = 'users' | 'locations' | 'reviews';
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('users');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {

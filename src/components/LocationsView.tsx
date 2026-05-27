@@ -21,7 +21,6 @@ export default function LocationsView() {
       const res = await fetch('/api/locations');
       const data = await res.json();
       setLocations(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.map((loc: any) => ({
           id: loc.location_id,
           name: loc.name,
@@ -34,9 +33,11 @@ export default function LocationsView() {
     }
   };
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     fetchLocations();
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)]">

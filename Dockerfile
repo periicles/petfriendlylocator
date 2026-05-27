@@ -1,9 +1,9 @@
 # --------- BUILD STAGE ---------
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 LABEL org.opencontainers.image.title="Pet Friendly Locator" \
       org.opencontainers.image.authors="Periicles" \
-      org.opencontainers.image.url="https://gitlab.com/Periicles/petfriendlylocator" \
+      org.opencontainers.image.url="https://github.com/Periicles/petfriendlylocator" \
       org.opencontainers.image.vendor="Periicles"
 
 WORKDIR /app
@@ -29,7 +29,7 @@ COPY . .
 RUN npm run build
 
 # --------- PRODUCTION STAGE ---------
-FROM node:22-alpine AS runner
+FROM node:24-alpine AS runner
 
 WORKDIR /app
 
@@ -41,7 +41,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 
 # Regénère les fichiers Prisma dans l'image finale (important pour runtime)
-RUN npx prisma generate --no-engine
+RUN npx prisma generate
 
 # Définir la variable d'environnement de production
 ENV NODE_ENV=production
