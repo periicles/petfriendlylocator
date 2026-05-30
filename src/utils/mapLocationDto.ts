@@ -1,6 +1,16 @@
 import { Location } from '@prisma/client';
 import { LocationDTO } from '@/types/locationDto';
 
+/**
+ * Convert a Prisma `Location` row into the public `LocationDTO`.
+ *
+ * Why a separate DTO instead of returning the raw Prisma model:
+ *   - decouples the API contract from the DB schema (renaming a column
+ *     should not silently break consumers);
+ *   - serialises `Date` fields to ISO strings (Prisma returns `Date` objects,
+ *     which would be coerced inconsistently across runtimes);
+ *   - normalises optional FKs / nullable columns to explicit `null`.
+ */
 export function mapLocationToDTO(location: Location): LocationDTO {
   return {
     location_id: location.location_id,

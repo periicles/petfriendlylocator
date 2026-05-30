@@ -1,163 +1,107 @@
-# 🐾 Pet Friendly Locator - Bordeaux
+# Pet Friendly Locator — Bordeaux
 
-Bienvenue sur **Pet Friendly Locator**, une application web dédiée à la découverte et au partage de lieux accueillants pour les animaux de compagnie dans la région bordelaise. Ce projet open source permet aux utilisateurs de consulter une carte interactive, d'ajouter des lieux pet-friendly, de gérer leur profil, et bientôt de laisser des avis.
+> [English version](./README.en.md)
 
----
+Application web communautaire pour découvrir et partager les lieux pet-friendly de la région bordelaise : carte interactive, ajout de lieux, profils utilisateurs, avis et modération.
 
-## 🚀 Stack Technique
-
-- **Framework Frontend** : [Next.js 15+](https://nextjs.org/docs) (App Router)
-- **Langage** : [TypeScript](https://www.typescriptlang.org/docs/)
-- **UI** : [Tailwind CSS 4.1](https://tailwindcss.com/docs), [MUI Icons](https://mui.com/material-ui/material-icons/)
-- **Base de données** : [PostgreSQL](https://www.postgresql.org/) via [Prisma ORM](https://www.prisma.io/)
-- **Carte interactive** : [Mapbox GL JS](https://docs.mapbox.com/mapbox-gl-js/)
-- **Déploiement** : [Docker](https://docs.docker.com/), [GitLab CI/CD](https://docs.gitlab.com/topics/build_your_application/)
-- **Tests** : [Jest](https://jestjs.io/)
-- **Design** : Figma
+[![CI/CD](https://github.com/Periicles/petfriendlylocator/actions/workflows/ci.yml/badge.svg)](https://github.com/Periicles/petfriendlylocator/actions/workflows/ci.yml)
+![Node](https://img.shields.io/badge/node-%E2%89%A524-43853d)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
 
 ---
 
-## 🗺️ Fonctionnalités principales
+## Stack technique
 
-- 🌐 **Page d'accueil** avec un grand scroller pour présenter l'idée du projet
-- 📌 **Carte interactive** affichant les lieux pet-friendly autour de Bordeaux
-- 🔍 **Barre de recherche** et liste des lieux associée
-- ➕ **Ajout de lieux** via un formulaire flottant (uniquement pour utilisateurs connectés)
-- 👤 **Page profil utilisateur** :
-  - Visualisation et édition des données personnelles
-  - Liste des lieux ajoutés
-  - Liste des avis laissés _(à venir)_
-- 🛡️ **Système d'administration** _(à venir)_ :
-  - Modération des lieux proposés
-  - Validation des avis
-- ⭐ **Système d’avis** _(à venir)_ :
-  - Les utilisateurs pourront commenter et noter les lieux
+| Couche           | Technologie                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- |
+| Framework        | [Next.js 16](https://nextjs.org/) (App Router, Turbopack)                    |
+| Langage          | TypeScript 6                                                                 |
+| Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [MUI 9](https://mui.com/) (Emotion) |
+| Carte            | [Mapbox GL JS 3](https://docs.mapbox.com/mapbox-gl-js/)                      |
+| Auth             | [NextAuth 4](https://next-auth.js.org/) (Credentials + JWT)                  |
+| ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/extension-accelerate`          |
+| Base de données  | PostgreSQL 16                                                                |
+| Tests            | Jest 30, React Testing Library                                               |
+| Conteneurisation | Docker, publication automatique sur GHCR                                     |
+| CI/CD            | GitHub Actions (lint + gitleaks + build)                                     |
 
 ---
 
-## 📦 Installation locale
+## Fonctionnalités
 
-### 1. Cloner le projet
+- **Carte interactive** des lieux pet-friendly autour de Bordeaux
+- **Recherche** et barre latérale listant les lieux
+- **Ajout de lieux** via formulaire flottant (utilisateur connecté)
+- **Profil utilisateur** : édition des infos, liste des lieux soumis, liste des avis laissés
+- **Système d'avis** : notation + commentaire par lieu
+- **Espace admin** (rôle `ADMIN`) : modération des lieux et avis
+- **Authentification** par e-mail / mot de passe (NextAuth + bcrypt)
+
+---
+
+## Démarrage rapide
+
+### Prérequis
+
+- Node.js ≥ 24
+- Docker & Docker Compose (option recommandée pour la base)
+- Un token public Mapbox ([créer un compte](https://account.mapbox.com/))
+
+### 1. Cloner et configurer
 
 ```bash
-git clone https://gitlab.com/ton-utilisateur/pet-friendly-locator.git
-cd pet-friendly-locator
+git clone https://github.com/Periicles/petfriendlylocator.git
+cd petfriendlylocator
+cp .env.example .env
 ```
 
-### 2. Installer les dépendances
+Renseigne ensuite les variables dans `.env` — voir [`.env.example`](./.env.example) pour la liste complète (Postgres, `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_MAPBOX_TOKEN`).
+
+### 2A. Lancer avec Docker (recommandé)
+
+```bash
+docker compose up --build
+```
+
+L'application est disponible sur [http://localhost:3000](http://localhost:3000), la base PostgreSQL sur le port `5432`.
+
+### 2B. Lancer en local
 
 ```bash
 npm install
-```
-
-### 3. Configurer les variables d'environnement
-
-Créez un fichier `.env` à la racine du projet et ajoutez les variables présentes dans `.env.example` :
-
-```bash
-DATABASE_URL="postgresql://user:password@localhost:5432/pet_friendly_locator"
-NEXT_PUBLIC_MAPBOX_TOKEN="your_mapbox_token"
-NEXTAUTH_SECRET="your_nextauth_secret"
-POSTGRES_USER="your_postgres_user_here"
-POSTGRES_PASSWORD="your_postgres_password_here"
-POSTGRES_DB="your_postgres_db_here"
-NEXTAUTH_URL="your_nextauth_url_here"
-```
-
-### 4. Lancer la base de données
-
-```bash
-npm run generate
-npm run migrate
-```
-
-### 5. Démarrer le serveur de développement
-
-```bash
+npm run generate   # prisma generate
+npm run migrate    # prisma migrate dev
 npm run dev
 ```
 
 ---
 
-## 🧪 Tests
+## Scripts npm
 
-Pour exécuter les tests, utilisez la commande suivante :
-
-```bash
-npm run test
-```
-
-Cela executera les test Jest présents dans le dossier `__tests__`.
-
----
-
-## 🐳 Docker
-
-Pour exécuter l'application avec Docker, assurez-vous d'avoir Docker installé sur votre machine. Ensuite, vous pouvez construire et démarrer les conteneurs avec :
-
-```bash
-docker-compose up --build
-```
+| Script                      | Description                                                   |
+| --------------------------- | ------------------------------------------------------------- |
+| `npm run dev`               | Serveur de dev Next.js (Turbopack)                            |
+| `npm run build`             | Build de production                                           |
+| `npm start`                 | Lance le build de production                                  |
+| `npm run lint` / `lint:fix` | ESLint (zéro warning toléré en CI)                            |
+| `npm run generate`          | `prisma generate`                                             |
+| `npm run migrate`           | `prisma migrate dev --name init`                              |
+| `npm run seed`              | Compile et exécute `prisma/seed.ts`                           |
+| `npm test`                  | Lance Jest (17 suites, ~133 tests)                            |
+| `npm run clean`             | Supprime `node_modules`, `.next`, `dist`, `prisma/migrations` |
 
 ---
 
-## 🔧 Architecture du projet
+## Documentation
 
-```bash
-.
-├── __tests__
-├── coverage
-│   └── lcov-report
-│       ├── app
-│       │   ├── api
-│       │   │   └── locations
-│       │   ├── carte
-│       │   ├── login
-│       │   ├── profile
-│       │   └── register
-│       ├── components
-│       ├── lib
-│       ├── src
-│       │   ├── app
-│       │   │   ├── admin
-│       │   │   ├── api
-│       │   │   │   └── locations
-│       │   │   ├── carte
-│       │   │   ├── login
-│       │   │   ├── profile
-│       │   │   └── register
-│       │   ├── components
-│       │   ├── lib
-│       │   └── utils
-│       └── utils
-├── prisma
-├── public
-└── src
-    ├── app
-    │   ├── admin
-    │   ├── api
-    │   │   ├── auth
-    │   │   │   └── [...nextauth]
-    │   │   ├── locations
-    │   │   │   └── [id]
-    │   │   ├── register
-    │   │   └── user
-    │   │       ├── me
-    │   │       └── update
-    │   ├── carte
-    │   ├── login
-    │   ├── profile
-    │   │   ├── places
-    │   │   └── reviews
-    │   └── register
-    ├── components
-    ├── lib
-    ├── types
-    └── utils
-```
+- **[Architecture](./docs/ARCHITECTURE.md)** — arborescence, flux d'auth, modèle de données, CI/CD
+- **[API](./docs/API.md)** — référence complète des routes REST
+- **[Tests](./__tests__/README.md)** — configuration Jest dual-environment, couverture
+- **[Contribuer](./CONTRIBUTING.md)** — workflow git, conventions, checks locaux
+- **[Changelog](./CHANGELOG.md)** — historique des versions
 
 ---
 
-## 🐶 À propos
+## Licence
 
-Ce projet a été créé pour aider les propriétaires d'animaux à profiter pleinement de la ville de Bordeaux.
+Projet open source. Voir le fichier `LICENSE` (à venir).
