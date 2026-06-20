@@ -40,6 +40,7 @@ export const authOptions: NextAuthOptions = {
           id: user.user_id,
           email: user.email,
           name: user.pseudo,
+          roles: user.roles,
         };
       },
     }),
@@ -57,12 +58,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id; // 👈 ID utilisateur injecté dans le token
+        token.roles = user.roles; // 👈 rôle propagé pour les gardes admin
       }
       return token;
     },
     async session({ session, token }) {
       if (token?.sub) {
         session.user.id = token.sub; // 👈 ID accessible dans client side session
+        session.user.roles = token.roles; // 👈 rôle accessible côté client
       }
       return session;
     },
