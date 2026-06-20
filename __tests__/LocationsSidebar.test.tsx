@@ -44,6 +44,7 @@ const mockLocations = [
 ];
 
 const mockRefreshLocations = jest.fn();
+const mockOnSelect = jest.fn();
 
 describe('LocationSidebar', () => {
   beforeEach(() => {
@@ -53,7 +54,7 @@ describe('LocationSidebar', () => {
   it('renders search input', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     expect(screen.getByPlaceholderText('Rechercher un lieu...')).toBeInTheDocument();
   });
@@ -65,7 +66,7 @@ describe('LocationSidebar', () => {
       update: jest.fn(),
     });
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     expect(screen.getByTestId('add-icon')).toBeInTheDocument();
   });
@@ -73,7 +74,7 @@ describe('LocationSidebar', () => {
   it('does not render add button when user is not logged in', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     expect(screen.queryByTestId('add-icon')).not.toBeInTheDocument();
   });
@@ -82,7 +83,7 @@ describe('LocationSidebar', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
     const { container } = render(
-      <LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />
+      <LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />
     );
 
     const aside = container.querySelector('aside');
@@ -100,7 +101,7 @@ describe('LocationSidebar', () => {
   it('displays locations from props', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     expect(screen.getByText('Park Central')).toBeInTheDocument();
     expect(screen.getByText('Beach Resort')).toBeInTheDocument();
@@ -111,7 +112,7 @@ describe('LocationSidebar', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
@@ -125,7 +126,7 @@ describe('LocationSidebar', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'BEACH');
@@ -138,7 +139,7 @@ describe('LocationSidebar', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
@@ -157,9 +158,9 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    const addButton = screen.getByRole('button');
+    const addButton = screen.getByTitle('Ajouter un lieu');
     await user.click(addButton);
 
     expect(screen.getByTestId('add-location-modal')).toBeInTheDocument();
@@ -173,9 +174,9 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTitle('Ajouter un lieu'));
     await user.click(screen.getByTestId('modal-close'));
 
     expect(screen.queryByTestId('add-location-modal')).not.toBeInTheDocument();
@@ -189,32 +190,43 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTitle('Ajouter un lieu'));
     await user.click(screen.getByTestId('modal-success'));
 
     expect(screen.queryByTestId('add-location-modal')).not.toBeInTheDocument();
     expect(mockRefreshLocations).toHaveBeenCalledTimes(1);
   });
 
-  it('renders location items with correct styling', () => {
+  it('renders location items as clickable buttons with correct styling', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    const locationItems = screen.getAllByRole('listitem');
-    expect(locationItems).toHaveLength(3);
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
 
-    locationItems.forEach((item) => {
-      expect(item).toHaveClass('p-2', 'rounded', 'hover:bg-gray-100', 'cursor-pointer');
+    const buttons = screen.getAllByRole('button');
+    expect(buttons).toHaveLength(3);
+    buttons.forEach((button) => {
+      expect(button).toHaveClass('w-full', 'text-left', 'p-2', 'rounded', 'hover:bg-gray-100');
     });
+  });
+
+  it('calls onSelect with the location id when a location is clicked', async () => {
+    mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
+    const user = userEvent.setup();
+
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
+
+    await user.click(screen.getByText('Beach Resort'));
+    expect(mockOnSelect).toHaveBeenCalledWith('2');
   });
 
   it('handles empty location list', () => {
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated', update: jest.fn() });
 
-    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     const list = screen.getByRole('list');
     expect(list).toBeInTheDocument();
@@ -229,12 +241,12 @@ describe('LocationSidebar', () => {
     });
     const user = userEvent.setup();
 
-    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} />);
+    render(<LocationSidebar locations={mockLocations} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
     const searchInput = screen.getByPlaceholderText('Rechercher un lieu...');
     await user.type(searchInput, 'park');
 
-    await user.click(screen.getByRole('button'));
+    await user.click(screen.getByTitle('Ajouter un lieu'));
     await user.click(screen.getByTestId('modal-close'));
 
     expect(searchInput).toHaveValue('park');
