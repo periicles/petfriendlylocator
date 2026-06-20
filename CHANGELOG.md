@@ -8,7 +8,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Review creation: `GET`/`POST /api/locations/[id]/reviews` (authenticated, validated rating/title/content) plus a `LocationDetailPanel` opened by clicking a place in the sidebar or a map marker, showing details, existing reviews, and a submission form for signed-in users.
+- Admin REST API backing the dashboard: `GET`/`DELETE` for `/api/admin/users`, `/api/admin/locations`, `/api/admin/reviews`. All endpoints require an authenticated `ADMIN`.
+- `requireAdmin` route guard (`src/lib/requireAdmin.ts`) returning `401`/`403` for non-admin callers.
+- `UserRole` now propagated into the JWT and session (`session.user.roles`) for client and server-side admin gating.
+- Server-side protection of `/admin` via middleware (redirects non-admins).
 - Project documentation suite: bilingual `README` (FR/EN), `CONTRIBUTING` (FR/EN), `docs/ARCHITECTURE` (FR/EN), `docs/API` (FR/EN), this changelog.
+
+### Fixed
+
+- Admin dashboard was calling non-existent `/api/admin/*` endpoints; the dashboard is now functional (list + delete).
+- Deleting a location now cascades its reviews in a transaction, avoiding a foreign-key violation.
+- `LocationType` mismatch resolved: the form offered `BEACH` while the Prisma enum did not, so creating a beach failed at the DB. The enum is now `PARK | BEACH | RESTAURANT | SHOP | HOTEL | OTHER`, aligned across schema, TS type, and form (which now also offers `HOTEL`). **Requires a DB migration** (`npm run migrate`).
+- `POST /api/locations` now rejects an unknown `location_type` with `400` instead of letting it reach Prisma.
+
+### Changed
+
+- Admin dashboard page hardened: typed rows (no `any`), correct per-resource id resolution, error state instead of `console.error`, and removal of the non-functional "Éditer" stub.
+- `LocationsView` now types the locations response (no `any`) and parses coordinates to numbers.
+- `AddLocationModal` typed against a `GeocodingFeature` shape (no `any`); postcode is parsed to a number.
 
 ## [0.1.0] — Initial release
 
