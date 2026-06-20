@@ -22,6 +22,10 @@ export async function POST(req: NextRequest) {
 
   const body: TCreateLocationInput = await req.json();
 
+  if (!Object.values(LocationType).includes(body.location_type as LocationType)) {
+    return NextResponse.json({ error: 'Type de lieu invalide' }, { status: 400 });
+  }
+
   const prismaResult = await prisma.location.create({
     data: {
       ...body,
