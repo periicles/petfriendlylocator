@@ -23,6 +23,19 @@ jest.mock('@/components/ClientNavbarWrapper', () => {
 });
 
 describe('RootLayout', () => {
+  // RootLayout renders <html>/<body>, which RTL necessarily mounts inside a <div>.
+  // Silence only that benign DOM-nesting warning; let any real errors surface.
+  const originalError = console.error;
+  beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation((...args: unknown[]) => {
+      if (typeof args[0] === 'string' && args[0].includes('cannot be a child of')) return;
+      originalError(...args);
+    });
+  });
+  afterAll(() => {
+    (console.error as jest.Mock).mockRestore();
+  });
+
   it('renders the basic HTML structure', () => {
     render(
       <RootLayout>
