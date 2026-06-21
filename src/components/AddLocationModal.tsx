@@ -8,6 +8,16 @@ type Props = {
   onSuccess?: () => void;
 };
 
+/** Subset of the Mapbox Geocoding v5 feature shape consumed here. */
+type GeocodingContext = { id: string; text: string };
+type GeocodingFeature = {
+  id: string;
+  text: string;
+  place_name: string;
+  center: [number, number];
+  context?: GeocodingContext[];
+};
+
 export default function AddLocationModal({ onClose, onSuccess }: Props) {
   const [form, setForm] = useState<TCreateLocationInput>({
     name: '',
@@ -21,7 +31,7 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
   });
 
   const [search, setSearch] = useState('');
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<GeocodingFeature[]>([]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -33,26 +43,26 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
       const res = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(search)}.json?autocomplete=true&limit=5&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
       );
-      const data = await res.json();
-      setSuggestions(data.features);
+      const data: { features?: GeocodingFeature[] } = await res.json();
+      setSuggestions(data.features ?? []);
     };
 
     const timeout = setTimeout(fetchSuggestions, 300); // debounce
     return () => clearTimeout(timeout);
   }, [search]);
 
-  const handleSuggestionClick = (feature: any) => {
+  const handleSuggestionClick = (feature: GeocodingFeature) => {
     const [lng, lat] = feature.center;
-    const context = feature.context || [];
+    const context = feature.context ?? [];
 
-    const postcode = context.find((c: any) => c.id.startsWith('postcode'))?.text || '';
-    const city = context.find((c: any) => c.id.startsWith('place'))?.text || '';
+    const postcode = context.find((c) => c.id.startsWith('postcode'))?.text ?? '';
+    const city = context.find((c) => c.id.startsWith('place'))?.text ?? '';
 
     setForm({
       ...form,
       address: feature.text,
       city: city,
-      zip_code: postcode,
+      zip_code: Number(postcode) || 0,
       latitude: lat.toString(),
       longitude: lng.toString(),
     });
@@ -165,6 +175,7 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
               <option value="BEACH">Plage</option>
               <option value="RESTAURANT">Restaurant</option>
               <option value="SHOP">Boutique</option>
+              <option value="HOTEL">Hôtel</option>
               <option value="OTHER">Autre</option>
             </select>
           </div>

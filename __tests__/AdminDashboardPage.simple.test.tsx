@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import AdminDashboardPage from '@/app/admin/page';
 
 global.fetch = jest.fn().mockResolvedValue({
+  ok: true,
   json: jest.fn().mockResolvedValue([]),
 }) as jest.Mock;
 

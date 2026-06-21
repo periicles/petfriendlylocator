@@ -7,6 +7,7 @@ global.fetch = mockFetch;
 
 function mockResponse(data: unknown[]) {
   mockFetch.mockResolvedValueOnce({
+    ok: true,
     json: jest.fn().mockResolvedValueOnce(data),
   });
 }

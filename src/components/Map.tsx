@@ -7,9 +7,11 @@ import { Location } from './LocationsView';
 
 type MapProps = {
   locations: Location[];
+  // eslint-disable-next-line no-unused-vars
+  onSelectLocation?: (id: string) => void;
 };
 
-export default function Map({ locations }: MapProps) {
+export default function Map({ locations, onSelectLocation }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]); // pour nettoyer
@@ -56,6 +58,9 @@ export default function Map({ locations }: MapProps) {
           .setPopup(new mapboxgl.Popup().setText(loc.name))
           .addTo(map);
 
+        marker.getElement().style.cursor = 'pointer';
+        marker.getElement().addEventListener('click', () => onSelectLocation?.(loc.id));
+
         markersRef.current.push(marker);
       });
     }
@@ -64,7 +69,7 @@ export default function Map({ locations }: MapProps) {
     return () => {
       map.off('load', updateMarkers);
     };
-  }, [locations]);
+  }, [locations, onSelectLocation]);
 
   return <div ref={mapContainer} className="w-full h-full min-h-[500px]" />;
 }

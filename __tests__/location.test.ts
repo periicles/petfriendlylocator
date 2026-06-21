@@ -76,6 +76,28 @@ describe('POST /api/locations', () => {
     expect(res.status).toBe(401);
   });
 
+  it('returns 400 for an invalid location_type', async () => {
+    mockGetToken.mockResolvedValueOnce({ sub: 'user_mocked_id' });
+
+    const req = new Request('http://localhost/api/locations', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: 'Donjon',
+        address: 'Rue du Château',
+        zip_code: 33000,
+        city: 'Bordeaux',
+        latitude: '44.8',
+        longitude: '-0.5',
+        location_type: 'CASTLE',
+      }),
+      headers: { 'Content-Type': 'application/json' },
+    }) as unknown as NextRequest;
+
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    expect(mockCreate).not.toHaveBeenCalled();
+  });
+
   it('returns 201 with the created location', async () => {
     mockGetToken.mockResolvedValueOnce({ sub: 'user_mocked_id' });
     mockCreate.mockResolvedValueOnce(mockLocationRecord);

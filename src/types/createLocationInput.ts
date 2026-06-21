@@ -6,5 +6,5 @@ export type TCreateLocationInput = {
   city: string;
   latitude: string;
   longitude: string;
-  location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'OTHER';
+  location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'HOTEL' | 'OTHER';
 };

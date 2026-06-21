@@ -15,9 +15,11 @@ type SidebarLocation = {
 type Props = {
   locations: SidebarLocation[];
   refreshLocations: () => void;
+  // eslint-disable-next-line no-unused-vars
+  onSelect: (id: string) => void;
 };
 
-export default function LocationSidebar({ locations, refreshLocations }: Props) {
+export default function LocationSidebar({ locations, refreshLocations, onSelect }: Props) {
   const { data: session } = useSession();
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -48,8 +50,13 @@ export default function LocationSidebar({ locations, refreshLocations }: Props) 
 
         <ul className="space-y-2">
           {filtered.map((loc) => (
-            <li key={loc.id} className="p-2 rounded hover:bg-gray-100 cursor-pointer">
-              {loc.name}
+            <li key={loc.id}>
+              <button
+                onClick={() => onSelect(loc.id)}
+                className="w-full text-left p-2 rounded hover:bg-gray-100 cursor-pointer"
+              >
+                {loc.name}
+              </button>
             </li>
           ))}
         </ul>
