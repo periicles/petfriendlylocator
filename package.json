@@ -12,10 +12,10 @@
     "linter": "next lint",
     "lint": "eslint . --ext js,ts,jsx,tsx",
     "lint:fix": "eslint . --ext js,ts,jsx,tsx --fix",
-    "clean": "rm -rf node_modules .next .turbo dist prisma/migrations",
+    "clean": "rm -rf node_modules .next .turbo",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev --name init",
-    "seed": "tsc --project tsconfig.seed.json && node dist/seed/seed.js",
+    "migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed.ts",
     "test": "jest"
   },
   "dependencies": {
