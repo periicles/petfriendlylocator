@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AdminDashboardPage from '@/app/admin/page';
 
@@ -19,12 +19,14 @@ describe('AdminDashboardPage', () => {
     jest.spyOn(window, 'alert').mockReturnValue(undefined);
   });
 
-  it('renders the three tab buttons', () => {
+  it('renders the three tab buttons', async () => {
     mockResponse([]);
     render(<AdminDashboardPage />);
     expect(screen.getByText('Utilisateurs')).toBeInTheDocument();
     expect(screen.getByText('Lieux')).toBeInTheDocument();
     expect(screen.getByText('Avis')).toBeInTheDocument();
+    // Settle the mount fetch's state update inside act().
+    await act(async () => {});
   });
 
   it('fetches the users endpoint on mount', async () => {
