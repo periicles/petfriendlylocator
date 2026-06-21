@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 import { hash } from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Utilisateur créé avec succès' }, { status: 201 });
   } catch (error) {
-    console.error('Erreur d’inscription:', error);
+    logger.error('Erreur d’inscription:', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

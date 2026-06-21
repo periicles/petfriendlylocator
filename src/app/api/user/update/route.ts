@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: 'Profil mis à jour', user: updatedUser });
   } catch (e) {
-    console.error(e);
+    logger.error(e);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

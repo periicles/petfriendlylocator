@@ -12,10 +12,10 @@
     "linter": "next lint",
     "lint": "eslint . --ext js,ts,jsx,tsx",
     "lint:fix": "eslint . --ext js,ts,jsx,tsx --fix",
-    "clean": "rm -rf node_modules .next .turbo dist prisma/migrations",
+    "clean": "rm -rf node_modules .next .turbo",
     "generate": "prisma generate",
-    "migrate": "prisma migrate dev --name init",
-    "seed": "tsc --project tsconfig.seed.json && node dist/seed/seed.js",
+    "migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed.ts",
     "test": "jest"
   },
   "dependencies": {
@@ -25,7 +25,6 @@
     "@mui/material": "^9.0.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "@prisma/extension-accelerate": "^3.0.1",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
     "dotenv": "^17.4.2",
