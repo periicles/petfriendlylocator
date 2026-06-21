@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import UserProfile from '@/app/profile/page';
 
@@ -23,9 +23,11 @@ describe('ProfilePage', () => {
     });
   });
 
-  it('shows loading state initially', () => {
+  it('shows loading state initially', async () => {
     render(<UserProfile />);
     expect(screen.getByText('Chargement...')).toBeInTheDocument();
+    // Settle the mount fetch's state update inside act().
+    await act(async () => {});
   });
 
   it('displays user data after loading', async () => {
