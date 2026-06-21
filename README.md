@@ -19,8 +19,8 @@ Application web communautaire pour découvrir et partager les lieux pet-friendly
 | Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [MUI 9](https://mui.com/) (Emotion) |
 | Carte            | [Mapbox GL JS 3](https://docs.mapbox.com/mapbox-gl-js/)                      |
 | Auth             | [NextAuth 4](https://next-auth.js.org/) (Credentials + JWT)                  |
-| ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/extension-accelerate`          |
-| Base de données  | PostgreSQL 16                                                                |
+| ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/adapter-pg`                    |
+| Base de données  | PostgreSQL 16 (Prisma Postgres)                                              |
 | Tests            | Jest 30, React Testing Library                                               |
 | Conteneurisation | Docker, publication automatique sur GHCR                                     |
 | CI/CD            | GitHub Actions (lint + gitleaks + build)                                     |
