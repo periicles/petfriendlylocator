@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Security
+
+- Patched 4 of 5 Dependabot advisories without breaking changes, via `overrides` and a non-forced `npm audit fix`: `postcss` 8.5.15 (XSS), `@hono/node-server` 1.19.14 (middleware bypass, transitive via `@prisma/dev`), `js-yaml` 4.2.0 (DoS), `@babel/core` 7.29.7 (arbitrary file read).
+- `uuid` <11.1.1 advisory left in place: its only fix downgrades `next-auth` to v3 (major regression), and the flaw (bounds check in `v3/v5/v6` when `buf` is provided) is unreachable through `next-auth`, which uses `v4` without a `buf` argument. To be cleared by a future `next-auth` upgrade.
+
 ### Added
 
 - Review creation: `GET`/`POST /api/locations/[id]/reviews` (authenticated, validated rating/title/content) plus a `LocationDetailPanel` opened by clicking a place in the sidebar or a map marker, showing details, existing reviews, and a submission form for signed-in users.
