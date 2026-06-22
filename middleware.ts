@@ -1,26 +1,26 @@
-import { getToken } from 'next-auth/jwt';
+import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { authConfig } from '@/lib/auth.config';
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ req });
+const { auth } = NextAuth(authConfig);
 
-  const isAuth = !!token;
-  const { pathname } = req.nextUrl;
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isAuth = !!req.auth;
 
-  const isAuthPage = pathname === '/login' || pathname === '/register';
-  const isAdminPage = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isAuthPage = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
+  const isAdminPage = nextUrl.pathname === '/admin' || nextUrl.pathname.startsWith('/admin/');
 
   if (isAuth && isAuthPage) {
-    return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.redirect(new URL('/', nextUrl));
   }
 
-  if (isAdminPage && token?.roles !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/', req.url));
+  if (isAdminPage && req.auth?.user?.roles !== 'ADMIN') {
+    return NextResponse.redirect(new URL('/', nextUrl));
   }
 
   return NextResponse.next();
-}
+});
 
 // Appliquer le middleware aux pages auth et à l'espace admin
 export const config = {

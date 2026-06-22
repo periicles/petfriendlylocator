@@ -9,11 +9,11 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
 }));
 
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { NextRequest } from 'next/server';
 import { GET as getUsers } from '@/app/api/admin/users/route';
@@ -23,7 +23,7 @@ import { DELETE as deleteUser } from '@/app/api/admin/users/[id]/route';
 import { DELETE as deleteLocation } from '@/app/api/admin/locations/[id]/route';
 import { DELETE as deleteReview } from '@/app/api/admin/reviews/[id]/route';
 
-const mockGetToken = getToken as jest.MockedFunction<any>;
+const mockAuth = auth as jest.MockedFunction<any>;
 const req = () => new Request('http://localhost/api/admin') as unknown as NextRequest;
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
 
@@ -33,20 +33,20 @@ beforeEach(() => {
 
 describe('admin route guards', () => {
   it('returns 401 when unauthenticated', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const res = await getUsers(req());
     expect(res.status).toBe(401);
   });
 
   it('returns 403 when authenticated but not admin', async () => {
-    mockGetToken.mockResolvedValueOnce({ sub: 'u1', roles: 'USER' });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'u1', roles: 'USER' } });
     const res = await getUsers(req());
     expect(res.status).toBe(403);
   });
 });
 
 describe('GET admin lists (as admin)', () => {
-  beforeEach(() => mockGetToken.mockResolvedValue({ sub: 'admin1', roles: 'ADMIN' }));
+  beforeEach(() => mockAuth.mockResolvedValue({ user: { id: 'admin1', roles: 'ADMIN' } }));
 
   it('lists users without exposing passwords', async () => {
     (prisma.user.findMany as jest.MockedFunction<any>).mockResolvedValueOnce([
@@ -75,7 +75,7 @@ describe('GET admin lists (as admin)', () => {
 });
 
 describe('DELETE admin resources (as admin)', () => {
-  beforeEach(() => mockGetToken.mockResolvedValue({ sub: 'admin1', roles: 'ADMIN' }));
+  beforeEach(() => mockAuth.mockResolvedValue({ user: { id: 'admin1', roles: 'ADMIN' } }));
 
   it('404 when user does not exist', async () => {
     (prisma.user.findUnique as jest.MockedFunction<any>).mockResolvedValueOnce(null);

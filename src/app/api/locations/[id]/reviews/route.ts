@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 import { mapReviewsToDTO, mapReviewToDTO, type ReviewWithAuthor } from '@/utils/mapReviewDto';
 
 const RATING_MIN = 1;
@@ -22,8 +22,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const token = await getToken({ req });
-  if (!token?.sub) {
+  const session = await auth();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   const review = await prisma.review.create({
-    data: { rating, title, content, location_id: id, user_id: token.sub },
+    data: { rating, title, content, location_id: id, user_id: session.user.id },
     include: { user: { select: { pseudo: true } } },
   });
 

@@ -8,8 +8,11 @@ import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 
-// Mock next-auth
-jest.mock('next-auth/react');
+// Mock next-auth (v5 ships ESM; factory mock avoids loading the real module)
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(),
+  signOut: jest.fn(),
+}));
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 const mockSignOut = signOut as jest.MockedFunction<typeof signOut>;
 

@@ -1,39 +1,35 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { prisma } from './prisma';
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
+import { prisma } from './prisma';
+import { authConfig } from './auth.config';
 
 /**
- * NextAuth configuration.
+ * Auth.js (v5) instance. Node-only: the Credentials `authorize` uses prisma +
+ * bcrypt. Edge code (middleware) must import `authConfig`, not this module.
  *
- * Why JWT sessions (not DB-backed):
- *   - lets `/api/locations/*` route handlers authenticate stateless via
- *     `getToken({ req })` without an extra DB round-trip per request;
- *   - avoids maintaining a `Session` table alongside `User` in Prisma.
- *
- * The `jwt` callback injects `user.user_id` into `token.sub`; the `session`
- * callback re-exposes it as `session.user.id` (typed in
- * `src/types/next-auth.d.ts`) so client components can read the user id
- * without a separate `/api/user/me` call.
+ * The `jwt` callback (in `auth.config.ts`) injects `user.user_id` into
+ * `token.sub` and `roles`; the `session` callback re-exposes them as
+ * `session.user.id` / `session.user.roles` (typed in `src/types/next-auth.d.ts`).
  */
-export const authOptions: NextAuthOptions = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Mot de passe', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials) return null;
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
         });
-
         if (!user) return null;
 
-        const isValid = await compare(credentials.password, user.password);
+        const isValid = await compare(credentials.password as string, user.password);
         if (!isValid) return null;
 
         return {
@@ -45,31 +41,4 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-
-  pages: {
-    signIn: '/login',
-  },
-
-  session: {
-    strategy: 'jwt', // 👈 nécessaire pour API Routes sécurisées avec JWT
-  },
-
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.sub = user.id; // 👈 ID utilisateur injecté dans le token
-        token.roles = user.roles; // 👈 rôle propagé pour les gardes admin
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token?.sub) {
-        session.user.id = token.sub; // 👈 ID accessible dans client side session
-        session.user.roles = token.roles; // 👈 rôle accessible côté client
-      }
-      return session;
-    },
-  },
-
-  secret: process.env.NEXTAUTH_SECRET, // 👈 .env obligatoire
-};
+});
