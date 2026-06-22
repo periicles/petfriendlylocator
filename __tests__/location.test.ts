@@ -9,16 +9,16 @@ jest.mock('@/lib/prisma', () => ({
   },
 }));
 
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
 }));
 
 import { POST, GET } from '@/app/api/locations/route';
 import { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-const mockGetToken = getToken as jest.MockedFunction<any>;
+const mockAuth = auth as jest.MockedFunction<any>;
 
 const mockFindMany = prisma.location.findMany as jest.MockedFunction<any>;
 
@@ -64,7 +64,7 @@ describe('GET /api/locations', () => {
 
 describe('POST /api/locations', () => {
   it('returns 401 when not authenticated', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
 
     const req = new Request('http://localhost/api/locations', {
       method: 'POST',
@@ -77,7 +77,7 @@ describe('POST /api/locations', () => {
   });
 
   it('returns 400 for an invalid location_type', async () => {
-    mockGetToken.mockResolvedValueOnce({ sub: 'user_mocked_id' });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user_mocked_id' } });
 
     const req = new Request('http://localhost/api/locations', {
       method: 'POST',
@@ -99,7 +99,7 @@ describe('POST /api/locations', () => {
   });
 
   it('returns 201 with the created location', async () => {
-    mockGetToken.mockResolvedValueOnce({ sub: 'user_mocked_id' });
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user_mocked_id' } });
     mockCreate.mockResolvedValueOnce(mockLocationRecord);
 
     const req = new Request('http://localhost/api/locations', {
