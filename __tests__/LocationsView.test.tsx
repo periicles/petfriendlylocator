@@ -21,6 +21,12 @@ jest.mock('@/components/LocationsSidebar', () => {
   };
 });
 
+// LocationDetailPanel (imported transitively) pulls next-auth/react (ESM in v5);
+// factory mock avoids loading the real module.
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({ data: null, status: 'unauthenticated' })),
+}));
+
 // Mock Next.js dynamic import
 jest.mock('next/dynamic', () => {
   return () => {

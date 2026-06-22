@@ -7,7 +7,9 @@ import userEvent from '@testing-library/user-event';
 import { useSession } from 'next-auth/react';
 import LocationDetailPanel from '@/components/LocationDetailPanel';
 
-jest.mock('next-auth/react');
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(),
+}));
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
 jest.mock('@mui/icons-material/Close', () => {
