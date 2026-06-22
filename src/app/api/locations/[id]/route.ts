@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,8 +17,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const token = await getToken({ req });
-  if (!token?.sub) {
+  const session = await auth();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!location) {
     return NextResponse.json({ error: 'Lieu non trouvé' }, { status: 404 });
   }
-  if (location.user_id !== token.sub) {
+  if (location.user_id !== session.user.id) {
     return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
   }
 
@@ -51,8 +51,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const token = await getToken({ req });
-  if (!token?.sub) {
+  const session = await auth();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Non autorisé' }, { status: 401 });
   }
 
@@ -62,7 +62,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!location) {
     return NextResponse.json({ error: 'Lieu non trouvé' }, { status: 404 });
   }
-  if (location.user_id !== token.sub) {
+  if (location.user_id !== session.user.id) {
     return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
   }
 
