@@ -66,5 +66,8 @@
     "postcss": "^8.5.15",
     "@hono/node-server": "^1.19.13",
     "js-yaml": "^4.2.0"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

@@ -11,6 +11,13 @@ const eslintConfig = [
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
+  {
+    // CLI scripts (seed, migrations helpers) legitimately log to stdout.
+    files: ['prisma/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
 ];
 
 export default eslintConfig;
