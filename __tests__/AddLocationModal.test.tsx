@@ -53,11 +53,12 @@ describe('AddLocationModal', () => {
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
     expect(screen.getByText('Ajouter un lieu')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Nom du lieu')).toBeInTheDocument();
+    expect(screen.getByLabelText('Nom du lieu')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Rechercher une adresse...')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Ville')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Code postal')).toBeInTheDocument();
-    expect(screen.getByText('-- Type de lieu --')).toBeInTheDocument();
+    expect(screen.getByLabelText('Ville')).toBeInTheDocument();
+    expect(screen.getByLabelText('Code postal')).toBeInTheDocument();
+    // Default location_type is OTHER, so the Select shows its label "Autre".
+    expect(screen.getByText('Autre')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Annuler' })).toBeInTheDocument();
   });
@@ -74,7 +75,7 @@ describe('AddLocationModal', () => {
     const user = userEvent.setup();
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    const nameInput = screen.getByPlaceholderText('Nom du lieu');
+    const nameInput = screen.getByLabelText('Nom du lieu');
     await user.type(nameInput, 'Test Location');
 
     expect(nameInput).toHaveValue('Test Location');
@@ -115,10 +116,13 @@ describe('AddLocationModal', () => {
     const user = userEvent.setup();
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    const select = screen.getByRole('combobox');
-    await user.selectOptions(select, 'RESTAURANT');
+    // Open the Base UI Select (currently showing the default "Autre") and pick "Restaurant".
+    await user.click(screen.getByText('Autre'));
+    await user.click(await screen.findByRole('option', { name: 'Restaurant' }));
 
-    expect(select).toHaveValue('RESTAURANT');
+    await waitFor(() =>
+      expect(document.querySelector('[data-slot="select-value"]')).toHaveTextContent('Restaurant')
+    );
   });
 
   it('submits form with correct data', async () => {
@@ -126,7 +130,7 @@ describe('AddLocationModal', () => {
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
     // Fill in the form
-    await user.type(screen.getByPlaceholderText('Nom du lieu'), 'Test Location');
+    await user.type(screen.getByLabelText('Nom du lieu'), 'Test Location');
 
     // Search for address and select suggestion
     const searchInput = screen.getByPlaceholderText('Rechercher une adresse...');
@@ -139,8 +143,8 @@ describe('AddLocationModal', () => {
     await user.click(screen.getByText('Test Place, Test City'));
 
     // Select location type
-    const select = screen.getByRole('combobox');
-    await user.selectOptions(select, 'RESTAURANT');
+    await user.click(screen.getByText('Autre'));
+    await user.click(await screen.findByRole('option', { name: 'Restaurant' }));
 
     // Submit form
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
@@ -188,7 +192,7 @@ describe('AddLocationModal', () => {
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
     // Fill in the form
-    await user.type(screen.getByPlaceholderText('Nom du lieu'), 'Test Location');
+    await user.type(screen.getByLabelText('Nom du lieu'), 'Test Location');
 
     // Search for address and select suggestion
     const searchInput = screen.getByPlaceholderText('Rechercher une adresse...');
@@ -201,8 +205,8 @@ describe('AddLocationModal', () => {
     await user.click(screen.getByText('Test Place, Test City'));
 
     // Select location type
-    const select = screen.getByRole('combobox');
-    await user.selectOptions(select, 'RESTAURANT');
+    await user.click(screen.getByText('Autre'));
+    await user.click(await screen.findByRole('option', { name: 'Restaurant' }));
 
     // Submit form
     await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
@@ -217,10 +221,10 @@ describe('AddLocationModal', () => {
   it('has correct modal structure and styling', () => {
     render(<AddLocationModal onClose={mockOnClose} onSuccess={mockOnSuccess} />);
 
-    const modalContainer = screen.getByText('Ajouter un lieu').closest('div');
-    expect(modalContainer).toHaveClass('bg-white', 'rounded-xl', 'p-6');
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
 
-    const form = screen.getByText('Ajouter un lieu').parentElement?.querySelector('form');
+    const form = dialog.querySelector('form');
     expect(form).toBeInTheDocument();
     expect(form).toHaveClass('space-y-4');
   });

@@ -2,6 +2,24 @@
 
 import { TCreateLocationInput } from '@/types/createLocationInput';
 import { useEffect, useState } from 'react';
+import { LocationType } from '@prisma/client';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type Props = {
   onClose: () => void;
@@ -17,6 +35,15 @@ type GeocodingFeature = {
   center: [number, number];
   context?: GeocodingContext[];
 };
+
+const LOCATION_TYPES: { value: LocationType; label: string }[] = [
+  { value: 'PARK', label: 'Parc' },
+  { value: 'BEACH', label: 'Plage' },
+  { value: 'RESTAURANT', label: 'Restaurant' },
+  { value: 'SHOP', label: 'Boutique' },
+  { value: 'HOTEL', label: 'Hôtel' },
+  { value: 'OTHER', label: 'Autre' },
+];
 
 export default function AddLocationModal({ onClose, onSuccess }: Props) {
   const [form, setForm] = useState<TCreateLocationInput>({
@@ -71,11 +98,6 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
     setSuggestions([]);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -98,37 +120,45 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl p-6 w-full max-w-lg shadow-lg border border-gray-300">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">Ajouter un lieu</h2>
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Ajouter un lieu</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-gray-800 relative">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nom du lieu"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            className="w-full border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nom du lieu</Label>
+            <Input
+              id="name"
+              name="name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+          </div>
 
-          <div className="relative">
-            <input
-              type="text"
+          <div className="relative space-y-2">
+            <Label htmlFor="address-search">Adresse</Label>
+            <Input
+              id="address-search"
               placeholder="Rechercher une adresse..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-gray-400 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
             {suggestions.length > 0 && (
-              <ul className="absolute z-50 bg-white border border-gray-300 rounded mt-1 w-full max-h-48 overflow-y-auto shadow-lg">
+              <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-y-auto rounded-md border bg-popover shadow-md">
                 {suggestions.map((sugg) => (
                   <li
                     key={sugg.id}
                     onClick={() => handleSuggestionClick(sugg)}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                    className="cursor-pointer px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
                   >
                     {sugg.place_name}
                   </li>
@@ -137,65 +167,47 @@ export default function AddLocationModal({ onClose, onSuccess }: Props) {
             )}
           </div>
 
-          <input
-            type="text"
-            name="address"
-            placeholder="Adresse"
-            value={form.address}
-            readOnly
-            className="w-full border border-gray-300 rounded px-3 py-2 bg-gray-100"
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2">
+              <Label htmlFor="city">Ville</Label>
+              <Input id="city" value={form.city} readOnly />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="zip">Code postal</Label>
+              <Input id="zip" value={String(form.zip_code)} readOnly />
+            </div>
+          </div>
 
-          <div className="flex gap-2">
-            <input
-              type="text"
-              name="city"
-              placeholder="Ville"
-              value={form.city}
-              readOnly
-              className="flex-1 border border-gray-300 rounded px-3 py-2 bg-gray-100"
-            />
-            <input
-              type="text"
-              name="zip_code"
-              placeholder="Code postal"
-              value={String(form.zip_code)}
-              readOnly
-              className="w-32 border border-gray-300 rounded px-3 py-2 bg-gray-100"
-            />
-            <select
-              name="location_type"
+          <div className="space-y-2">
+            <Label>Type de lieu</Label>
+            <Select
               value={form.location_type}
-              onChange={handleChange}
-              className="w-full border border-gray-400 bg-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
+              onValueChange={(value) => {
+                if (value) setForm({ ...form, location_type: value as LocationType });
+              }}
+              items={LOCATION_TYPES}
             >
-              <option value="">-- Type de lieu --</option>
-              <option value="PARK">Parc</option>
-              <option value="BEACH">Plage</option>
-              <option value="RESTAURANT">Restaurant</option>
-              <option value="SHOP">Boutique</option>
-              <option value="HOTEL">Hôtel</option>
-              <option value="OTHER">Autre</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="-- Type de lieu --" />
+              </SelectTrigger>
+              <SelectContent>
+                {LOCATION_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
-            >
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
               Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-            >
-              Enregistrer
-            </button>
-          </div>
+            </Button>
+            <Button type="submit">Enregistrer</Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
