@@ -7,7 +7,7 @@ Jest 30 with **dual-environment** support: API/utility tests run in Node, compon
 | File pattern  | Environment | Setup                                    | Examples                                              |
 | ------------- | ----------- | ---------------------------------------- | ----------------------------------------------------- |
 | `*.test.ts`   | `node`      | none                                     | `location.test.ts`, `mapLocationDto.test.ts`          |
-| `*.test.tsx`  | `jsdom`     | `jest.setup.jsdom.js` (RTL DOM matchers) | `register.test.tsx`, `login.test.tsx`, `Map.test.tsx` |
+| `*.test.tsx`  | `jsdom`     | `jest.setup.jsdom.ts` (RTL DOM matchers) | `register.test.tsx`, `login.test.tsx`, `Map.test.tsx` |
 
 Two-project Jest config lives in `jest.config.ts`.
 
@@ -22,8 +22,8 @@ npm test -- --testNamePattern login # by test name
 
 ## Current state
 
-- **17 test suites**, **133 tests** — all passing
-- **~97% line coverage** (`npm test -- --coverage`)
+- **21 test suites**, **160 tests** — all passing
+- **~93% line coverage** (`npm test -- --coverage`)
 - Suites cover: API route (`location.test.ts`), DTO mapping, pages (`HomePage`, `RootLayout`, `carte`, `profile`, `login`, `register`, `AdminDashboardPage`), and components (`Map`, `Navbar`, `LocationsView`, `LocationsSidebar`, `AddLocationModal`, `ClientNavbarWrapper`, `Providers`).
 
 Refresh these numbers by running `npm test -- --coverage` after notable changes.

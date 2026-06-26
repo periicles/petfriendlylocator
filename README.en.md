@@ -16,14 +16,14 @@ Community-driven web app for discovering and sharing pet-friendly places around 
 | ---------------- | ----------------------------------------------------------------------------------------- |
 | Framework        | [Next.js 16](https://nextjs.org/) (App Router, Turbopack)                                 |
 | Language         | TypeScript 6                                                                              |
-| Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [MUI 9](https://mui.com/) (Emotion) |
+| Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) (base-ui, lucide) |
 | Map              | [Mapbox GL JS 3](https://docs.mapbox.com/mapbox-gl-js/)                                   |
 | Auth             | [Auth.js v5](https://authjs.dev/) (NextAuth, Credentials + JWT)                           |
 | ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/adapter-pg`                                 |
 | Database         | PostgreSQL 16 (Prisma Postgres)                                                           |
 | Testing          | Jest 30, React Testing Library                                                            |
 | Containerization | Docker, automatic publish to GHCR                                                         |
-| CI/CD            | GitHub Actions (lint + gitleaks + build)                                                  |
+| CI/CD            | GitHub Actions (lint + gitleaks + typecheck/build/test)                                   |
 
 ---
 
@@ -87,7 +87,7 @@ npm run dev
 | `npm run generate`          | `prisma generate`                                           |
 | `npm run migrate`           | `prisma migrate dev --name init`                            |
 | `npm run seed`              | Compile and run `prisma/seed.ts`                            |
-| `npm test`                  | Run Jest (17 suites, ~133 tests)                            |
+| `npm test`                  | Run Jest (21 suites, 160 tests)                            |
 | `npm run clean`             | Remove `node_modules`, `.next`, `dist`, `prisma/migrations` |
 
 ---

@@ -127,15 +127,15 @@ Référence complète : [API.md](./API.md).
 ## Frontend
 
 - **App Router** Next.js 16, mix Server / Client Components. Les pages contenant des interactions (carte, formulaires) déclarent `"use client"`.
-- **Styles** : Tailwind 4 (config CSS-based, plus de `tailwind.config.js`) + MUI 9 (`@emotion/react` + `@emotion/styled`).
-- **Carte** : Mapbox GL JS 3. Token public exposé via `NEXT_PUBLIC_MAPBOX_TOKEN` (preview-only — voir `next.config.ts`).
+- **Styles** : Tailwind 4 (config CSS-based, plus de `tailwind.config.js`) + [shadcn/ui](https://ui.shadcn.com/). Les primitives (base-ui) vivent dans `src/components/ui/`, le thème est défini par tokens CSS (oklch) dans `globals.css`, les icônes via `lucide-react`, et le helper `cn()` dans `src/lib/utils.ts`.
+- **Carte** : Mapbox GL JS 3. Token public exposé via `NEXT_PUBLIC_MAPBOX_TOKEN` (preview-only — voir `next.config.ts`). Le fond de carte est centralisé dans `src/components/mapStyles.ts` (variantes neutre/couleur), markers et popups stylés via les tokens du thème.
 
 ---
 
 ## Tests
 
 - Jest 30 avec **deux projets** : `node` (`.test.ts`) et `jsdom` (`.test.tsx`).
-- 17 suites, ~133 tests, ~97 % de couverture de lignes.
+- 21 suites, 160 tests, ~93 % de couverture de lignes.
 - Détail : [`__tests__/README.md`](../__tests__/README.md).
 
 ---
@@ -148,7 +148,8 @@ Workflow unique `.github/workflows/ci.yml`, déclenché sur push et PR vers `mai
 | ----------------- | --------------------------------------------------------------------- |
 | `lint`            | `npx eslint . --max-warnings=0`                                       |
 | `gitleaks`        | Scan secrets (gitleaks 8.30.1, exit 1 si découverte)                  |
-| `build-and-publish` | Sur push `main` uniquement : `docker buildx build` → push GHCR (`sha-...` + `latest`), cache GHA |
+| `test`            | `prisma generate` → `npm run build` (typecheck inclus) → `npm test`   |
+| `build-and-publish` | Sur push `main` uniquement (après `lint`, `gitleaks`, `test`) : `docker buildx build` → push GHCR (`sha-...` + `latest`), cache GHA |
 
 Pas de pipeline staging séparé — l'image `ghcr.io/periicles/petfriendlylocator:latest` est la version "production".
 
