@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useState } from 'react';
 import Image from 'next/image';
 import { logger } from '@/lib/logger';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -38,56 +41,49 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[var(--vintage-beige)] px-4">
-      <div className="w-full max-w-sm bg-[var(--vintage-light)] text-[var(--vintage-black)] rounded-xl shadow-lg p-6 text-center">
-        {/* Logo ou icône */}
-        <div className="mb-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="items-center text-center">
           <Image src="/PFB.png" alt="Logo" width={64} height={64} className="mx-auto" priority />
-        </div>
+          <CardTitle className="text-xl">Connexion</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {error && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
 
-        <h2 className="text-xl font-bold mb-6">Connexion</h2>
+          <Input
+            type="email"
+            placeholder="Adresse email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
-            {error}
+          <Input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
+
+          <Button onClick={handleLogin} disabled={isLoading} className="w-full">
+            {isLoading ? 'Connexion...' : 'Se connecter'}
+          </Button>
+
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <Link href="/forgot-password" className="hover:text-foreground hover:underline">
+              Mot de passe oublié ?
+            </Link>
+            <Link href="/register" className="hover:text-foreground hover:underline">
+              Créer un compte
+            </Link>
           </div>
-        )}
-
-        <input
-          type="email"
-          placeholder="Adresse email"
-          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--vintage-taupe)]"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
-        />
-
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          className="w-full mb-4 px-3 py-2 border border-gray-300 rounded bg-white focus:outline-none focus:ring-2 focus:ring-[var(--vintage-taupe)]"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
-        />
-
-        <button
-          onClick={handleLogin}
-          disabled={isLoading}
-          className="w-full bg-[var(--vintage-black)] text-white py-2 rounded-md font-semibold hover:opacity-90 transition disabled:opacity-50"
-        >
-          {isLoading ? 'Connexion...' : 'Se connecter'}
-        </button>
-
-        <div className="flex justify-between text-sm mt-4 text-[var(--vintage-taupe)]">
-          <Link href="/forgot-password" className="hover:underline">
-            Mot de passe oublié ?
-          </Link>
-          <Link href="/register" className="hover:underline">
-            Créer un compte
-          </Link>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

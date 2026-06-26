@@ -259,37 +259,23 @@ describe('LoginPage', () => {
   it('has correct CSS classes on form container', () => {
     render(<LoginPage />);
 
-    const formContainer = screen.getByText('Connexion').closest('div');
-    expect(formContainer).toHaveClass(
-      'w-full',
-      'max-w-sm',
-      'rounded-xl',
-      'shadow-lg',
-      'p-6',
-      'text-center'
-    );
+    const card = screen.getByText('Connexion').closest('[data-slot="card"]');
+    expect(card).toHaveClass('w-full', 'max-w-sm');
   });
 
-  it('has correct heading tag and classes', () => {
+  it('renders the title with the card-title slot', () => {
     render(<LoginPage />);
 
     const heading = screen.getByText('Connexion');
-    expect(heading).toHaveClass('text-xl', 'font-bold', 'mb-6');
-    expect(heading.tagName).toBe('H2');
+    expect(heading).toHaveClass('text-xl');
+    expect(heading).toHaveAttribute('data-slot', 'card-title');
   });
 
   it('has correct button classes', () => {
     render(<LoginPage />);
 
     const button = screen.getByRole('button', { name: 'Se connecter' });
-    expect(button).toHaveClass(
-      'w-full',
-      'text-white',
-      'py-2',
-      'rounded-md',
-      'font-semibold',
-      'transition'
-    );
+    expect(button).toHaveClass('w-full', 'bg-primary', 'text-primary-foreground');
   });
 
   it('has correct input field classes', () => {
@@ -298,17 +284,7 @@ describe('LoginPage', () => {
     const emailInput = screen.getByPlaceholderText('Adresse email');
     const passwordInput = screen.getByPlaceholderText('Mot de passe');
 
-    const expectedClasses = [
-      'w-full',
-      'border',
-      'border-gray-300',
-      'rounded',
-      'px-3',
-      'py-2',
-      'mb-4',
-      'focus:outline-none',
-      'focus:ring-2',
-    ];
+    const expectedClasses = ['w-full', 'border', 'border-input', 'rounded-lg'];
 
     expectedClasses.forEach((className) => {
       expect(emailInput).toHaveClass(className);
