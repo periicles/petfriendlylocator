@@ -18,20 +18,25 @@ Vue d'ensemble technique de **Pet Friendly Locator**.
 │   │   ├── register/         # Inscription
 │   │   ├── profile/          # Profil + sous-pages places/, reviews/
 │   │   ├── api/              # Route handlers REST
+│   │   │   ├── admin/        # users/, locations/, reviews/ (+ [id]/) — GET/DELETE ADMIN
 │   │   │   ├── auth/[...nextauth]/
-│   │   │   ├── locations/    # GET, POST + [id]/ : GET, PUT, DELETE
+│   │   │   ├── locations/    # GET, POST + [id]/ (GET/PUT/DELETE) + [id]/reviews/ (GET/POST)
 │   │   │   ├── register/
 │   │   │   └── user/         # me/ : GET   |   update/ : POST
 │   │   ├── layout.tsx        # Root layout (HTML, providers)
 │   │   ├── page.tsx          # Landing
 │   │   └── globals.css
-│   ├── components/           # AddLocationModal, Map, Navbar, LocationsSidebar, LocationsView, ClientNavbarWrapper
+│   ├── components/           # composants métier (AddLocationModal, LocationDetailPanel, Map, Navbar, Locations*) + ui/ (primitives shadcn) + mapStyles.ts
 │   ├── lib/
-│   │   ├── auth.ts           # Config NextAuth
-│   │   └── prisma.ts         # Client Prisma (Proxy lazy-init)
-│   ├── providers.tsx         # SessionProvider, ThemeProvider
+│   │   ├── auth.ts           # Instance Auth.js v5 (Node)
+│   │   ├── auth.config.ts    # Config Auth.js partagée (Edge-safe)
+│   │   ├── prisma.ts         # Client Prisma (Proxy lazy-init)
+│   │   ├── requireAdmin.ts   # Garde de route ADMIN
+│   │   ├── logger.ts
+│   │   └── utils.ts          # Helper cn() (class-merge)
+│   ├── providers.tsx         # SessionProvider
 │   ├── types/                # DTO + augmentations next-auth
-│   └── utils/                # mapLocationDto
+│   └── utils/                # mapLocationDto, mapReviewDto
 ├── prisma/
 │   ├── schema.prisma
 │   └── seed.ts
