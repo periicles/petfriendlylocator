@@ -121,15 +121,15 @@ Full reference: [API.en.md](./API.en.md).
 ## Frontend
 
 - **Next.js 16 App Router**, mix of Server and Client Components. Pages with interactivity (map, forms) declare `"use client"`.
-- **Styles**: Tailwind 4 (CSS-based config, no more `tailwind.config.js`) + MUI 9 (`@emotion/react` + `@emotion/styled`).
-- **Map**: Mapbox GL JS 3. Public token exposed via `NEXT_PUBLIC_MAPBOX_TOKEN` (preview-only — see `next.config.ts`).
+- **Styles**: Tailwind 4 (CSS-based config, no more `tailwind.config.js`) + [shadcn/ui](https://ui.shadcn.com/). Primitives (base-ui) live in `src/components/ui/`, the theme is defined by CSS tokens (oklch) in `globals.css`, icons via `lucide-react`, and the `cn()` helper in `src/lib/utils.ts`.
+- **Map**: Mapbox GL JS 3. Public token exposed via `NEXT_PUBLIC_MAPBOX_TOKEN` (preview-only — see `next.config.ts`). The basemap is centralized in `src/components/mapStyles.ts` (neutral/color variants); markers and popups are styled with theme tokens.
 
 ---
 
 ## Tests
 
 - Jest 30 with **two projects**: `node` (`.test.ts`) and `jsdom` (`.test.tsx`).
-- 17 suites, ~133 tests, ~97% line coverage.
+- 21 suites, 160 tests, ~93% line coverage.
 - Details: [`__tests__/README.md`](../__tests__/README.md).
 
 ---
@@ -142,7 +142,8 @@ Single workflow `.github/workflows/ci.yml`, triggered on push and PR to `main`.
 | ------------------- | --------------------------------------------------------------------------------------------- |
 | `lint`              | `npx eslint . --max-warnings=0`                                                               |
 | `gitleaks`          | Secret scan (gitleaks 8.30.1, exit 1 on hit)                                                  |
-| `build-and-publish` | On `main` push only: `docker buildx build` → push to GHCR (`sha-...` + `latest`), GHA cache  |
+| `test`              | `prisma generate` → `npm run build` (incl. typecheck) → `npm test`                            |
+| `build-and-publish` | On `main` push only (after `lint`, `gitleaks`, `test`): `docker buildx build` → push to GHCR (`sha-...` + `latest`), GHA cache  |
 
 No separate staging pipeline — the `ghcr.io/periicles/petfriendlylocator:latest` image is the "production" version.
 
