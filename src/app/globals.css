@@ -4,20 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  /* Legacy "vintage" palette — kept until all pages migrate to shadcn tokens */
-  --color-vintage-light: #f2f2f2;
-  --color-vintage-beige: #eae4d5;
-  --color-vintage-taupe: #b6b09f;
-  --color-vintage-black: #000000;
-}
-
 :root {
-  /* Legacy "vintage" palette (var() form) — removed after page migration */
-  --vintage-light: #f2f2f2;
-  --vintage-beige: #eae4d5;
-  --vintage-taupe: #b6b09f;
-  --vintage-black: #000000;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
