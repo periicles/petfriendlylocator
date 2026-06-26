@@ -1,6 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 type Tab = 'users' | 'locations' | 'reviews';
 type Row = Record<string, unknown>;
@@ -63,68 +72,64 @@ export default function AdminDashboardPage() {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-100 border-r p-4 space-y-4">
+      <aside className="w-64 space-y-2 border-r bg-muted/40 p-4">
         {TABS.map(({ key, label }) => (
-          <button
+          <Button
             key={key}
+            variant={activeTab === key ? 'default' : 'ghost'}
             disabled={activeTab === key}
             onClick={() => setActiveTab(key)}
-            className={`w-full text-left px-4 py-2 rounded ${
-              activeTab === key
-                ? 'bg-blue-600 text-white cursor-default'
-                : 'bg-white hover:bg-gray-200'
-            }`}
+            className="w-full justify-start"
           >
             {label}
-          </button>
+          </Button>
         ))}
       </aside>
 
       {/* Content */}
-      <main className="flex-1 p-6 overflow-auto">
-        <h1 className="text-2xl font-bold capitalize mb-4">Gestion des {activeTab}</h1>
+      <main className="flex-1 overflow-auto p-6">
+        <h1 className="mb-4 text-2xl font-bold capitalize">Gestion des {activeTab}</h1>
 
-        {error && <p className="text-red-600 mb-4">{error}</p>}
+        {error && <p className="mb-4 text-destructive">{error}</p>}
 
         {data.length === 0 ? (
-          <p className="text-gray-500">Aucune donnée à afficher.</p>
+          <p className="text-muted-foreground">Aucune donnée à afficher.</p>
         ) : (
-          <table className="w-full border border-gray-300 text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                {Object.keys(data[0]).map((key) => (
-                  <th key={key} className="text-left p-2 border-b capitalize">
-                    {key.replace('_', ' ')}
-                  </th>
-                ))}
-                <th className="p-2 border-b">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item) => {
-                const id = String(item[ID_KEY[activeTab]]);
-                return (
-                  <tr key={id}>
-                    {Object.values(item).map((value, idx) => (
-                      <td key={idx} className="p-2 border-b">
-                        {typeof value === 'string' && value.length > 100
-                          ? value.slice(0, 100) + '...'
-                          : value?.toString()}
-                      </td>
-                    ))}
-                    <td className="p-2 border-b">
-                      <button
-                        onClick={() => handleDelete(id)}
-                        className="text-sm px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {Object.keys(data[0]).map((key) => (
+                    <TableHead key={key} className="capitalize">
+                      {key.replace('_', ' ')}
+                    </TableHead>
+                  ))}
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.map((item) => {
+                  const id = String(item[ID_KEY[activeTab]]);
+                  return (
+                    <TableRow key={id}>
+                      {Object.values(item).map((value, idx) => (
+                        <TableCell key={idx}>
+                          {typeof value === 'string' && value.length > 100
+                            ? value.slice(0, 100) + '...'
+                            : value?.toString()}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(id)}>
+                          Supprimer
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         )}
       </main>
     </div>
