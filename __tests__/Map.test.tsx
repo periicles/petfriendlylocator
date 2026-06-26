@@ -6,6 +6,7 @@ import { render } from '@testing-library/react';
 import * as React from 'react';
 import mapboxgl from 'mapbox-gl';
 import Map from '@/components/Map';
+import { ACTIVE_MAP_STYLE } from '@/components/mapStyles';
 
 // Mock mapbox-gl
 jest.mock('mapbox-gl', () => ({
@@ -49,7 +50,7 @@ describe('Map Component', () => {
 
     expect(mockMapboxgl.Map).toHaveBeenCalledWith({
       container: container.firstChild,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: ACTIVE_MAP_STYLE,
       center: [-0.57918, 44.837789],
       zoom: 12,
     });

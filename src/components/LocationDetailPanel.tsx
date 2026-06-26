@@ -2,16 +2,35 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import CloseIcon from '@mui/icons-material/Close';
+import { X } from 'lucide-react';
 import type { LocationDTO } from '@/types/locationDto';
 import type { ReviewDTO } from '@/types/reviewDto';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 type Props = {
   locationId: string;
   onClose: () => void;
 };
 
-const RATINGS = [1, 2, 3, 4, 5];
+const RATINGS = [
+  { value: '1', label: '1/5' },
+  { value: '2', label: '2/5' },
+  { value: '3', label: '3/5' },
+  { value: '4', label: '4/5' },
+  { value: '5', label: '5/5' },
+];
+const RATING_ITEMS = RATINGS.map((n) => ({ value: n, label: `${n}/5` }));
 
 export default function LocationDetailPanel({ locationId, onClose }: Props) {
   const { data: session } = useSession();
@@ -20,7 +39,7 @@ export default function LocationDetailPanel({ locationId, onClose }: Props) {
   const [reviews, setReviews] = useState<ReviewDTO[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [rating, setRating] = useState(5);
+  const [rating, setRating] = useState('5');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -56,7 +75,7 @@ export default function LocationDetailPanel({ locationId, onClose }: Props) {
       const res = await fetch(`/api/locations/${locationId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating, title, content }),
+        body: JSON.stringify({ rating: Number(rating), title, content }),
       });
 
       if (!res.ok) {
@@ -68,7 +87,7 @@ export default function LocationDetailPanel({ locationId, onClose }: Props) {
       setReviews((prev) => [created, ...prev]);
       setTitle('');
       setContent('');
-      setRating(5);
+      setRating('5');
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'La publication a échoué.');
     } finally {
@@ -77,41 +96,41 @@ export default function LocationDetailPanel({ locationId, onClose }: Props) {
   };
 
   return (
-    <aside className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-gray-200 p-4 overflow-y-auto">
-      <div className="flex items-start justify-between mb-4">
-        <h2 className="text-xl font-bold">{location?.name ?? 'Chargement…'}</h2>
-        <button onClick={onClose} title="Fermer" className="text-gray-500 hover:text-gray-800">
-          <CloseIcon />
-        </button>
+    <aside className="w-full overflow-y-auto border-t p-4 lg:w-[400px] lg:border-t-0 lg:border-l">
+      <div className="mb-4 flex items-start justify-between">
+        <h2 className="text-xl font-semibold">{location?.name ?? 'Chargement…'}</h2>
+        <Button variant="ghost" size="icon-sm" onClick={onClose} title="Fermer" aria-label="Fermer">
+          <X />
+        </Button>
       </div>
 
-      {loadError && <p className="text-red-600">{loadError}</p>}
+      {loadError && <p className="text-destructive">{loadError}</p>}
 
       {location && (
-        <div className="space-y-1 text-sm text-gray-700 mb-6">
+        <div className="mb-6 space-y-2 text-sm text-muted-foreground">
           {location.description && <p>{location.description}</p>}
           <p>
             {location.address}, {location.zip_code} {location.city}
           </p>
-          <p className="uppercase text-xs tracking-wide text-gray-500">{location.location_type}</p>
+          <Badge variant="secondary">{location.location_type}</Badge>
         </div>
       )}
 
       <section>
-        <h3 className="font-semibold mb-2">Avis ({reviews.length})</h3>
+        <h3 className="mb-2 font-medium">Avis ({reviews.length})</h3>
 
         {reviews.length === 0 ? (
-          <p className="italic text-gray-500 text-sm">Aucun avis pour le moment.</p>
+          <p className="text-sm text-muted-foreground italic">Aucun avis pour le moment.</p>
         ) : (
           <ul className="space-y-3">
             {reviews.map((review) => (
-              <li key={review.review_id} className="rounded border border-gray-200 p-3">
+              <li key={review.review_id} className="rounded-lg border p-3">
                 <div className="flex justify-between">
                   <span className="font-medium">{review.title}</span>
-                  <span className="text-sm text-gray-600">{review.rating}/5</span>
+                  <span className="text-sm text-muted-foreground">{review.rating}/5</span>
                 </div>
-                <p className="text-sm text-gray-700 mt-1">{review.content}</p>
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="mt-1 text-sm text-muted-foreground">{review.content}</p>
+                <p className="mt-2 text-xs text-muted-foreground">
                   {review.author ?? 'Anonyme'} • {new Date(review.created_at).toLocaleDateString()}
                 </p>
               </li>
@@ -122,53 +141,52 @@ export default function LocationDetailPanel({ locationId, onClose }: Props) {
 
       {session ? (
         <form onSubmit={handleSubmit} className="mt-6 space-y-3">
-          <h3 className="font-semibold">Laisser un avis</h3>
+          <h3 className="font-medium">Laisser un avis</h3>
 
-          <label className="block text-sm">
-            Note
-            <select
+          <div className="space-y-2">
+            <Label>Note</Label>
+            <Select
               value={rating}
-              onChange={(e) => setRating(Number(e.target.value))}
-              className="block w-full border border-gray-300 rounded px-2 py-1 mt-1"
+              onValueChange={(value) => setRating(value ?? '5')}
+              items={RATING_ITEMS}
             >
-              {RATINGS.map((n) => (
-                <option key={n} value={n}>
-                  {n}/5
-                </option>
-              ))}
-            </select>
-          </label>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {RATINGS.map((n) => (
+                  <SelectItem key={n.value} value={n.value}>
+                    {n.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <input
+          <Input
             type="text"
             placeholder="Titre"
             value={title}
             required
             onChange={(e) => setTitle(e.target.value)}
-            className="block w-full border border-gray-300 rounded px-2 py-1"
           />
 
-          <textarea
+          <Textarea
             placeholder="Votre avis"
             value={content}
             required
             rows={3}
             onChange={(e) => setContent(e.target.value)}
-            className="block w-full border border-gray-300 rounded px-2 py-1"
           />
 
-          {formError && <p className="text-red-600 text-sm">{formError}</p>}
+          {formError && <p className="text-sm text-destructive">{formError}</p>}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition disabled:opacity-60"
-          >
+          <Button type="submit" disabled={submitting}>
             {submitting ? 'Publication…' : 'Publier'}
-          </button>
+          </Button>
         </form>
       ) : (
-        <p className="mt-6 text-sm text-gray-500">Connectez-vous pour laisser un avis.</p>
+        <p className="mt-6 text-sm text-muted-foreground">Connectez-vous pour laisser un avis.</p>
       )}
     </aside>
   );

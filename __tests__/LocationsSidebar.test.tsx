@@ -33,12 +33,6 @@ jest.mock('@/components/AddLocationModal', () => {
   };
 });
 
-jest.mock('@mui/icons-material/Add', () => {
-  return function MockAddIcon() {
-    return <span data-testid="add-icon">+</span>;
-  };
-});
-
 const mockLocations = [
   { id: '1', name: 'Park Central', latitude: 44.84, longitude: -0.58 },
   { id: '2', name: 'Beach Resort', latitude: 44.85, longitude: -0.57 },
@@ -70,7 +64,7 @@ describe('LocationSidebar', () => {
 
     render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    expect(screen.getByTestId('add-icon')).toBeInTheDocument();
+    expect(screen.getByTitle('Ajouter un lieu')).toBeInTheDocument();
   });
 
   it('does not render add button when user is not logged in', () => {
@@ -78,7 +72,7 @@ describe('LocationSidebar', () => {
 
     render(<LocationSidebar locations={[]} refreshLocations={mockRefreshLocations} onSelect={mockOnSelect} />);
 
-    expect(screen.queryByTestId('add-icon')).not.toBeInTheDocument();
+    expect(screen.queryByTitle('Ajouter un lieu')).not.toBeInTheDocument();
   });
 
   it('has correct responsive CSS classes', () => {
@@ -95,7 +89,6 @@ describe('LocationSidebar', () => {
       'border-t',
       'lg:border-t-0',
       'lg:border-l',
-      'border-gray-200',
       'p-4'
     );
   });
@@ -211,7 +204,7 @@ describe('LocationSidebar', () => {
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(3);
     buttons.forEach((button) => {
-      expect(button).toHaveClass('w-full', 'text-left', 'p-2', 'rounded', 'hover:bg-gray-100');
+      expect(button).toHaveClass('w-full', 'text-left', 'p-2', 'rounded-md', 'hover:bg-accent');
     });
   });
 

@@ -110,7 +110,7 @@ describe('Navbar', () => {
 
       await waitFor(() => {
         const nav = screen.getByRole('navigation');
-        expect(nav).toHaveClass('fixed', 'top-0', 'z-50', 'w-full', 'bg-white', 'shadow');
+        expect(nav).toHaveClass('fixed', 'top-0', 'z-50', 'w-full', 'bg-background', 'border-b');
       });
     });
 
@@ -120,11 +120,11 @@ describe('Navbar', () => {
 
       await waitFor(() => {
         const carteLink = screen.getByText('Carte');
-        expect(carteLink).toHaveClass('text-blue-600', 'font-semibold');
+        expect(carteLink).toHaveClass('text-foreground', 'font-semibold');
       });
 
       const accueilLink = screen.getByText('Accueil');
-      expect(accueilLink).toHaveClass('text-gray-700', 'hover:text-blue-500');
+      expect(accueilLink).toHaveClass('text-muted-foreground', 'hover:text-foreground');
     });
   });
 
@@ -188,7 +188,7 @@ describe('Navbar', () => {
 
       await waitFor(() => {
         const profileLink = screen.getByText('Profil');
-        expect(profileLink).toHaveClass('text-blue-600', 'font-semibold');
+        expect(profileLink).toHaveClass('text-foreground', 'font-semibold');
       });
     });
 
@@ -196,8 +196,9 @@ describe('Navbar', () => {
       render(<Navbar />);
 
       await waitFor(() => {
-        const logoutButton = screen.getByText('Déconnexion');
-        expect(logoutButton).toHaveClass('text-gray-700', 'hover:text-red-500');
+        const logoutButton = screen.getByRole('button', { name: 'Déconnexion' });
+        expect(logoutButton).toBeInTheDocument();
+        expect(logoutButton.tagName).toBe('BUTTON');
       });
     });
   });
@@ -229,7 +230,7 @@ describe('Navbar', () => {
 
       await waitFor(() => {
         const homeLink = screen.getByText('Accueil');
-        expect(homeLink).toHaveClass('text-blue-600', 'font-semibold');
+        expect(homeLink).toHaveClass('text-foreground', 'font-semibold');
       });
     });
 
@@ -239,7 +240,7 @@ describe('Navbar', () => {
 
       await waitFor(() => {
         const loginLink = screen.getByText('Connexion');
-        expect(loginLink).toHaveClass('text-blue-600', 'font-semibold');
+        expect(loginLink).toHaveClass('text-foreground', 'font-semibold');
       });
     });
   });
@@ -266,7 +267,7 @@ describe('Navbar', () => {
       // Find the div that contains the navigation links
       const navigation = screen.getByRole('navigation');
       const linksContainer = navigation.querySelector('div > div:last-child');
-      expect(linksContainer).toHaveClass('flex', 'space-x-4', 'text-sm', 'md:text-base');
+      expect(linksContainer).toHaveClass('flex', 'items-center', 'gap-4');
     });
 
     it('has responsive container padding', async () => {
@@ -294,7 +295,7 @@ describe('Navbar', () => {
       await waitFor(() => {
         const carteLink = screen.getByText('Carte');
         // Should not be active since isActive checks for exact match
-        expect(carteLink).toHaveClass('text-gray-700', 'hover:text-blue-500');
+        expect(carteLink).toHaveClass('text-muted-foreground', 'hover:text-foreground');
       });
     });
   });

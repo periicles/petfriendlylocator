@@ -52,6 +52,7 @@ const config: Config = {
       },
       moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
+        '^next/font/google$': '<rootDir>/__mocks__/nextFontGoogleMock.js',
       },
       setupFilesAfterEnv: ['<rootDir>/jest.setup.jsdom.ts'],
       transformIgnorePatterns: ['node_modules/(?!(@testing-library)/)'],

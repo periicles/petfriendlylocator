@@ -43,9 +43,7 @@ describe('HomePage', () => {
       'py-16',
       'md:py-32',
       'max-w-4xl',
-      'mx-auto',
-      'bg-vintage-light',
-      'text-vintage-black'
+      'mx-auto'
     );
   });
 
@@ -82,17 +80,13 @@ describe('HomePage', () => {
     expect(contactHeading).toHaveClass('text-3xl', 'md:text-4xl', 'font-bold');
   });
 
-  it('uses vintage color scheme', () => {
-    const { container } = render(<HomePage />);
+  it('uses muted foreground for body paragraphs', () => {
+    render(<HomePage />);
 
-    const mainDiv = container.firstChild;
-    expect(mainDiv).toHaveClass('bg-vintage-light', 'text-vintage-black');
-
-    // Check that paragraphs have the correct text color
     const paragraphs = screen.getAllByText(/^(?!.*📬|.*🧭|.*🐾).+/);
     paragraphs.forEach((paragraph) => {
       if (paragraph.tagName === 'P') {
-        expect(paragraph).toHaveClass('text-vintage-taupe');
+        expect(paragraph).toHaveClass('text-muted-foreground');
       }
     });
   });

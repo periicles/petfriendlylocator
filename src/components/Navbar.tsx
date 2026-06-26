@@ -4,6 +4,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -20,59 +22,36 @@ export default function Navbar() {
 
   const isActive = (href: string) => pathname === href;
 
-  return (
-    <nav className="fixed top-0 z-50 w-full bg-white shadow">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <h1 className="text-lg md:text-xl font-bold text-gray-800">Pet Friendly Locator</h1>
+  const linkClass = (active: boolean) =>
+    cn(
+      'text-sm transition-colors md:text-base',
+      active ? 'font-semibold text-foreground' : 'text-muted-foreground hover:text-foreground'
+    );
 
-        <div className="flex space-x-4 text-sm md:text-base">
-          <Link
-            href="/"
-            className={
-              isActive('/') ? 'text-blue-600 font-semibold' : 'text-gray-700 hover:text-blue-500'
-            }
-          >
+  return (
+    <nav className="fixed top-0 z-50 w-full border-b bg-background">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <h1 className="text-lg font-bold md:text-xl">Pet Friendly Locator</h1>
+
+        <div className="flex items-center gap-4">
+          <Link href="/" className={linkClass(isActive('/'))}>
             Accueil
           </Link>
-          <Link
-            href="/carte"
-            className={
-              isActive('/carte')
-                ? 'text-blue-600 font-semibold'
-                : 'text-gray-700 hover:text-blue-500'
-            }
-          >
+          <Link href="/carte" className={linkClass(isActive('/carte'))}>
             Carte
           </Link>
 
           {session?.user ? (
             <>
-              <Link
-                href="/profile"
-                className={
-                  isActive('/profile')
-                    ? 'text-blue-600 font-semibold'
-                    : 'text-gray-700 hover:text-blue-500'
-                }
-              >
+              <Link href="/profile" className={linkClass(isActive('/profile'))}>
                 Profil
               </Link>
-              <button
-                onClick={() => signOut({ callbackUrl: '/login' })}
-                className="text-gray-700 hover:text-red-500 cursor-pointer"
-              >
+              <Button variant="ghost" size="sm" onClick={() => signOut({ callbackUrl: '/login' })}>
                 Déconnexion
-              </button>
+              </Button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className={
-                isActive('/login')
-                  ? 'text-blue-600 font-semibold'
-                  : 'text-gray-700 hover:text-blue-500'
-              }
-            >
+            <Link href="/login" className={linkClass(isActive('/login'))}>
               Connexion
             </Link>
           )}

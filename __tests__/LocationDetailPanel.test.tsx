@@ -12,12 +12,6 @@ jest.mock('next-auth/react', () => ({
 }));
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
-jest.mock('@mui/icons-material/Close', () => {
-  return function MockCloseIcon() {
-    return <span data-testid="close-icon">x</span>;
-  };
-});
-
 const mockFetch = jest.fn();
 global.fetch = mockFetch as jest.Mock;
 

@@ -191,10 +191,10 @@ describe('RegisterPage', () => {
     render(<RegisterPage />);
 
     const form = document.querySelector('form');
-    expect(form).toHaveClass('flex', 'flex-col', 'gap-4', 'w-full', 'max-w-sm');
+    expect(form).toHaveClass('flex', 'flex-col', 'gap-4');
 
-    const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-blue-500', 'text-white', 'p-2', 'rounded', 'hover:bg-blue-600');
+    const button = screen.getByRole('button', { name: 'S’inscrire' });
+    expect(button).toHaveClass('w-full', 'bg-primary', 'text-primary-foreground');
   });
 
   it('maintains component state correctly during user interaction', async () => {

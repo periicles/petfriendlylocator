@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function UserPlaces() {
   const session = await auth();
@@ -20,31 +21,26 @@ export default async function UserPlaces() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--vintage-black)' }}>
-        Mes lieux
-      </h2>
+      <h2 className="mb-6 text-2xl font-bold">Mes lieux</h2>
 
       {locations.length === 0 ? (
-        <p className="italic text-gray-500">Aucun lieu n&apos;a encore été ajouté.</p>
+        <p className="text-muted-foreground italic">Aucun lieu n&apos;a encore été ajouté.</p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {locations.map((location) => (
-            <div
-              key={location.location_id}
-              className="rounded-xl shadow p-4"
-              style={{
-                backgroundColor: 'var(--vintage-light)',
-                color: 'var(--vintage-black)',
-              }}
-            >
-              <h3 className="text-lg font-semibold">{location.name}</h3>
-              <p className="text-sm" style={{ color: 'var(--vintage-black)' }}>
-                {location.address}, {location.city} {location.zip_code}
-              </p>
-              <p className="text-xs mt-2 text-right text-gray-500">
-                Ajouté le {new Date(location.created_at).toLocaleDateString()}
-              </p>
-            </div>
+            <Card key={location.location_id}>
+              <CardHeader>
+                <CardTitle className="text-lg">{location.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  {location.address}, {location.city} {location.zip_code}
+                </p>
+                <p className="mt-2 text-right text-xs text-muted-foreground">
+                  Ajouté le {new Date(location.created_at).toLocaleDateString()}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
