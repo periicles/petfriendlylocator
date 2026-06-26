@@ -38,7 +38,7 @@ Routes REST exposées par **Pet Friendly Locator**. Toutes les routes sont sous 
     city: string;
     latitude: string;
     longitude: string;
-    location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'OTHER';
+    location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'HOTEL' | 'OTHER';
   }
   ```
 
@@ -46,12 +46,9 @@ Routes REST exposées par **Pet Friendly Locator**. Toutes les routes sont sous 
 
 ## Authentification
 
-Deux mécanismes coexistent (tous deux NextAuth) :
+Auth via **Auth.js v5 (NextAuth)**. Les route handlers appellent `auth()` (`src/lib/auth.ts`), qui renvoie la session ; `session.user.id` et `session.user.roles` proviennent des callbacks `jwt`/`session` (`src/lib/auth.config.ts`). Stratégie JWT (cookie httpOnly, pas de table de session en DB).
 
-- **JWT direct** via `getToken({ req })` — utilisé par les routes `/api/locations/*` qui mutent.
-- **Session côté serveur** via `getServerSession(authOptions)` — utilisé par les routes `/api/user/*`.
-
-Un client web qui passe par les cookies NextAuth obtient les deux automatiquement.
+Les routes `/api/admin/*` ajoutent le garde `requireAdmin` (`src/lib/requireAdmin.ts`) : `401` si non authentifié, `403` si l'utilisateur n'est pas `ADMIN`.
 
 ---
 
@@ -68,10 +65,11 @@ Liste tous les lieux.
 
 Crée un lieu, associé à l'utilisateur authentifié.
 
-- **Auth** : JWT requis (`token.sub` ⇒ `user_id`)
+- **Auth** : session requise (`auth()` ⇒ `session.user.id`)
 - **Body** : `TCreateLocationInput`
 - **Réponses** :
   - `201 Created` → `LocationDTO`
+  - `400 Bad Request` → `{ error: "Type de lieu invalide" }` (valeur hors enum `LocationType`)
   - `401 Unauthorized` → `{ error: "Non autorisé" }`
 
 ---
@@ -91,7 +89,7 @@ Récupère un lieu.
 
 Met à jour un lieu. **Seul le propriétaire peut éditer.**
 
-- **Auth** : JWT requis + `location.user_id === token.sub`
+- **Auth** : session requise + `location.user_id === session.user.id`
 - **Body** : champs modifiables → `name`, `description`, `address`, `zip_code`, `city`, `latitude`, `longitude`
 - **Réponses** :
   - `200 OK` → modèle Prisma `Location` mis à jour
@@ -103,11 +101,34 @@ Met à jour un lieu. **Seul le propriétaire peut éditer.**
 
 Supprime un lieu. **Seul le propriétaire peut supprimer.**
 
-- **Auth** : JWT requis + `location.user_id === token.sub`
+- **Auth** : session requise + `location.user_id === session.user.id`
 - **Réponses** :
   - `200 OK` → `{ message: "Lieu supprimé" }`
   - `401 Unauthorized` → `{ error: "Non autorisé" }`
   - `403 Forbidden` → `{ error: "Accès interdit" }`
+  - `404 Not Found` → `{ error: "Lieu non trouvé" }`
+
+---
+
+## `/api/locations/[id]/reviews`
+
+### `GET /api/locations/[id]/reviews`
+
+Liste les avis d'un lieu.
+
+- **Auth** : non
+- **Réponse** : `200 OK` → `ReviewDTO[]`
+
+### `POST /api/locations/[id]/reviews`
+
+Crée un avis sur le lieu, associé à l'utilisateur authentifié.
+
+- **Auth** : session requise (`auth()` ⇒ `session.user.id`)
+- **Body** : `{ rating: number, title: string, content: string }`
+- **Réponses** :
+  - `201 Created` → `ReviewDTO`
+  - `400 Bad Request` → `{ error: ... }` (note / titre / contenu invalides)
+  - `401 Unauthorized` → `{ error: "Non autorisé" }`
   - `404 Not Found` → `{ error: "Lieu non trouvé" }`
 
 ---
@@ -159,6 +180,21 @@ Met à jour le `pseudo` et/ou l'`email` de l'utilisateur courant.
 ## `/api/auth/[...nextauth]`
 
 Endpoint catch-all géré par NextAuth (signin, callback, signout, csrf, session…). Voir la [documentation NextAuth](https://next-auth.js.org/configuration/options) pour le détail. Provider configuré : **Credentials** (`src/lib/auth.ts`).
+
+---
+
+## `/api/admin/*`
+
+Routes de modération du tableau de bord admin. **Toutes** exigent un utilisateur authentifié `ADMIN` (garde `requireAdmin` → `401` si non authentifié, `403` si non admin).
+
+| Route                       | Méthode | Effet                   |
+| --------------------------- | ------- | ----------------------- |
+| `/api/admin/users`          | GET     | Liste les utilisateurs  |
+| `/api/admin/users/[id]`     | DELETE  | Supprime un utilisateur |
+| `/api/admin/locations`      | GET     | Liste les lieux         |
+| `/api/admin/locations/[id]` | DELETE  | Supprime un lieu        |
+| `/api/admin/reviews`        | GET     | Liste les avis          |
+| `/api/admin/reviews/[id]`   | DELETE  | Supprime un avis        |
 
 ---
 

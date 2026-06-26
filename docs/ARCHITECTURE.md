@@ -18,20 +18,25 @@ Vue d'ensemble technique de **Pet Friendly Locator**.
 │   │   ├── register/         # Inscription
 │   │   ├── profile/          # Profil + sous-pages places/, reviews/
 │   │   ├── api/              # Route handlers REST
+│   │   │   ├── admin/        # users/, locations/, reviews/ (+ [id]/) — GET/DELETE ADMIN
 │   │   │   ├── auth/[...nextauth]/
-│   │   │   ├── locations/    # GET, POST + [id]/ : GET, PUT, DELETE
+│   │   │   ├── locations/    # GET, POST + [id]/ (GET/PUT/DELETE) + [id]/reviews/ (GET/POST)
 │   │   │   ├── register/
 │   │   │   └── user/         # me/ : GET   |   update/ : POST
 │   │   ├── layout.tsx        # Root layout (HTML, providers)
 │   │   ├── page.tsx          # Landing
 │   │   └── globals.css
-│   ├── components/           # AddLocationModal, Map, Navbar, LocationsSidebar, LocationsView, ClientNavbarWrapper
+│   ├── components/           # composants métier (AddLocationModal, LocationDetailPanel, Map, Navbar, Locations*) + ui/ (primitives shadcn) + mapStyles.ts
 │   ├── lib/
-│   │   ├── auth.ts           # Config NextAuth
-│   │   └── prisma.ts         # Client Prisma (Proxy lazy-init)
-│   ├── providers.tsx         # SessionProvider, ThemeProvider
+│   │   ├── auth.ts           # Instance Auth.js v5 (Node)
+│   │   ├── auth.config.ts    # Config Auth.js partagée (Edge-safe)
+│   │   ├── prisma.ts         # Client Prisma (Proxy lazy-init)
+│   │   ├── requireAdmin.ts   # Garde de route ADMIN
+│   │   ├── logger.ts
+│   │   └── utils.ts          # Helper cn() (class-merge)
+│   ├── providers.tsx         # SessionProvider
 │   ├── types/                # DTO + augmentations next-auth
-│   └── utils/                # mapLocationDto
+│   └── utils/                # mapLocationDto, mapReviewDto
 ├── prisma/
 │   ├── schema.prisma
 │   └── seed.ts
@@ -61,9 +66,7 @@ User ────< Location ────< Review
 | Location | `location_id` (uuid), `name`, `description?`, `address`, `zip_code`, `city`, `latitude`, `longitude`, `location_type` |
 | Review   | `review_id` (uuid), `rating`, `title`, `content`, FK `user_id?` + `location_id`                                   |
 
-Enums : `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP | HOTEL | OTHER`.
-
-> **Attention** : le type TS `TCreateLocationInput` (`src/types/createLocationInput.ts`) diverge actuellement de l'enum Prisma — `BEACH` est présent côté TS, `HOTEL` côté DB. À aligner.
+Enums : `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | BEACH | RESTAURANT | SHOP | HOTEL | OTHER` — aligné entre `prisma/schema.prisma`, le type TS `TCreateLocationInput` (`src/types/createLocationInput.ts`) et le formulaire `AddLocationModal`.
 
 ---
 
@@ -93,12 +96,12 @@ Enums : `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP 
                                                            │
                                        ┌───────────────────┴─────────────────┐
                                        ▼                                     ▼
-                          getToken({ req })   pour routes /api/locations/*  getServerSession(authOptions) pour /api/user/*
+                          auth() (Auth.js v5) dans chaque route handler → session.user.id / session.user.roles
 ```
 
-- **Stratégie** : `session: { strategy: 'jwt' }` (`src/lib/auth.ts`). Pas de table de session en DB.
-- **Callback `jwt`** : injecte `user.id` dans `token.sub` au login.
-- **Callback `session`** : expose `token.sub` côté client via `session.user.id` (typage dans `src/types/next-auth.d.ts`).
+- **Stratégie** : `session: { strategy: 'jwt' }` (config dans `src/lib/auth.config.ts`, instance dans `src/lib/auth.ts`). Pas de table de session en DB.
+- **Callback `jwt`** : injecte `user_id` dans `token.sub` et les `roles` au login.
+- **Callback `session`** : expose `session.user.id` et `session.user.roles` côté client/serveur (typage dans `src/types/next-auth.d.ts`).
 - **Middleware** (`middleware.ts`) : redirige les utilisateurs déjà authentifiés depuis `/login` ou `/register` vers `/`. **Ne protège pas** d'autres routes — la protection se fait dans chaque route handler ou page.
 
 ---
@@ -107,14 +110,17 @@ Enums : `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP 
 
 Référence complète : [API.md](./API.md).
 
-| Route                          | Méthodes        | Auth     |
-| ------------------------------ | --------------- | -------- |
-| `/api/locations`               | GET, POST       | POST: JWT|
-| `/api/locations/[id]`          | GET, PUT, DELETE| Mut: JWT + ownership |
-| `/api/register`                | POST            | publique |
-| `/api/user/me`                 | GET             | session  |
-| `/api/user/update`             | POST            | session  |
-| `/api/auth/[...nextauth]`      | GET, POST       | géré par NextAuth |
+| Route                            | Méthodes        | Auth     |
+| -------------------------------- | --------------- | -------- |
+| `/api/locations`                 | GET, POST       | POST: session |
+| `/api/locations/[id]`            | GET, PUT, DELETE| Mut: session + ownership |
+| `/api/locations/[id]/reviews`    | GET, POST       | POST: session |
+| `/api/register`                  | POST            | publique |
+| `/api/user/me`                   | GET             | session  |
+| `/api/user/update`               | POST            | session  |
+| `/api/admin/{users,locations,reviews}`        | GET    | `ADMIN`  |
+| `/api/admin/{users,locations,reviews}/[id]`   | DELETE | `ADMIN`  |
+| `/api/auth/[...nextauth]`        | GET, POST       | géré par Auth.js |
 
 ---
 

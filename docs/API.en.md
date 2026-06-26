@@ -38,7 +38,7 @@ REST routes exposed by **Pet Friendly Locator**. All routes are under `/api/`.
     city: string;
     latitude: string;
     longitude: string;
-    location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'OTHER';
+    location_type: 'PARK' | 'BEACH' | 'RESTAURANT' | 'SHOP' | 'HOTEL' | 'OTHER';
   }
   ```
 
@@ -46,12 +46,9 @@ REST routes exposed by **Pet Friendly Locator**. All routes are under `/api/`.
 
 ## Authentication
 
-Two mechanisms coexist (both backed by NextAuth):
+Auth via **Auth.js v5 (NextAuth)**. Route handlers call `auth()` (`src/lib/auth.ts`), which returns the session; `session.user.id` and `session.user.roles` come from the `jwt`/`session` callbacks (`src/lib/auth.config.ts`). JWT strategy (httpOnly cookie, no session table in DB).
 
-- **Direct JWT** via `getToken({ req })` — used by mutating `/api/locations/*` routes.
-- **Server-side session** via `getServerSession(authOptions)` — used by `/api/user/*` routes.
-
-A web client carrying NextAuth cookies satisfies both automatically.
+`/api/admin/*` routes add the `requireAdmin` guard (`src/lib/requireAdmin.ts`): `401` when unauthenticated, `403` when the user is not `ADMIN`.
 
 ---
 
@@ -68,10 +65,11 @@ List all locations.
 
 Create a location, owned by the authenticated user.
 
-- **Auth**: JWT required (`token.sub` ⇒ `user_id`)
+- **Auth**: session required (`auth()` ⇒ `session.user.id`)
 - **Body**: `TCreateLocationInput`
 - **Responses**:
   - `201 Created` → `LocationDTO`
+  - `400 Bad Request` → `{ error: "Type de lieu invalide" }` (value outside the `LocationType` enum)
   - `401 Unauthorized` → `{ error: "Non autorisé" }`
 
 ---
@@ -91,7 +89,7 @@ Fetch a single location.
 
 Update a location. **Only the owner can edit.**
 
-- **Auth**: JWT required + `location.user_id === token.sub`
+- **Auth**: session required + `location.user_id === session.user.id`
 - **Body**: editable fields → `name`, `description`, `address`, `zip_code`, `city`, `latitude`, `longitude`
 - **Responses**:
   - `200 OK` → updated Prisma `Location` model
@@ -103,11 +101,34 @@ Update a location. **Only the owner can edit.**
 
 Delete a location. **Only the owner can delete.**
 
-- **Auth**: JWT required + `location.user_id === token.sub`
+- **Auth**: session required + `location.user_id === session.user.id`
 - **Responses**:
   - `200 OK` → `{ message: "Lieu supprimé" }`
   - `401 Unauthorized` → `{ error: "Non autorisé" }`
   - `403 Forbidden` → `{ error: "Accès interdit" }`
+  - `404 Not Found` → `{ error: "Lieu non trouvé" }`
+
+---
+
+## `/api/locations/[id]/reviews`
+
+### `GET /api/locations/[id]/reviews`
+
+List a location's reviews.
+
+- **Auth**: none
+- **Response**: `200 OK` → `ReviewDTO[]`
+
+### `POST /api/locations/[id]/reviews`
+
+Create a review on the location, owned by the authenticated user.
+
+- **Auth**: session required (`auth()` ⇒ `session.user.id`)
+- **Body**: `{ rating: number, title: string, content: string }`
+- **Responses**:
+  - `201 Created` → `ReviewDTO`
+  - `400 Bad Request` → `{ error: ... }` (invalid rating / title / content)
+  - `401 Unauthorized` → `{ error: "Non autorisé" }`
   - `404 Not Found` → `{ error: "Lieu non trouvé" }`
 
 ---
@@ -159,6 +180,21 @@ Update the current user's `pseudo` and/or `email`.
 ## `/api/auth/[...nextauth]`
 
 Catch-all endpoint handled by NextAuth (signin, callback, signout, csrf, session…). See the [NextAuth docs](https://next-auth.js.org/configuration/options) for details. Configured provider: **Credentials** (`src/lib/auth.ts`).
+
+---
+
+## `/api/admin/*`
+
+Moderation routes backing the admin dashboard. **All** require an authenticated `ADMIN` (`requireAdmin` guard → `401` when unauthenticated, `403` when not admin).
+
+| Route                       | Method | Effect          |
+| --------------------------- | ------ | --------------- |
+| `/api/admin/users`          | GET    | List users      |
+| `/api/admin/users/[id]`     | DELETE | Delete a user   |
+| `/api/admin/locations`      | GET    | List locations  |
+| `/api/admin/locations/[id]` | DELETE | Delete a location |
+| `/api/admin/reviews`        | GET    | List reviews    |
+| `/api/admin/reviews/[id]`   | DELETE | Delete a review |
 
 ---
 
