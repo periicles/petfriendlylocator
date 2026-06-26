@@ -16,14 +16,14 @@ Application web communautaire pour découvrir et partager les lieux pet-friendly
 | ---------------- | ---------------------------------------------------------------------------- |
 | Framework        | [Next.js 16](https://nextjs.org/) (App Router, Turbopack)                    |
 | Langage          | TypeScript 6                                                                 |
-| Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [MUI 9](https://mui.com/) (Emotion) |
+| Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/) (base-ui, lucide) |
 | Carte            | [Mapbox GL JS 3](https://docs.mapbox.com/mapbox-gl-js/)                      |
 | Auth             | [NextAuth 4](https://next-auth.js.org/) (Credentials + JWT)                  |
 | ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/adapter-pg`                    |
 | Base de données  | PostgreSQL 16 (Prisma Postgres)                                              |
 | Tests            | Jest 30, React Testing Library                                               |
 | Conteneurisation | Docker, publication automatique sur GHCR                                     |
-| CI/CD            | GitHub Actions (lint + gitleaks + build)                                     |
+| CI/CD            | GitHub Actions (lint + gitleaks + typecheck/build/test)                       |
 
 ---
 
@@ -87,7 +87,7 @@ npm run dev
 | `npm run generate`          | `prisma generate`                                             |
 | `npm run migrate`           | `prisma migrate dev --name init`                              |
 | `npm run seed`              | Compile et exécute `prisma/seed.ts`                           |
-| `npm test`                  | Lance Jest (17 suites, ~133 tests)                            |
+| `npm test`                  | Lance Jest (21 suites, 160 tests)                            |
 | `npm run clean`             | Supprime `node_modules`, `.next`, `dist`, `prisma/migrations` |
 
 ---
