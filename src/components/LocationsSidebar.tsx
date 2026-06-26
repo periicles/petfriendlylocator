@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import AddIcon from '@mui/icons-material/Add';
+import { Plus } from 'lucide-react';
 import AddLocationModal from './AddLocationModal';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 type SidebarLocation = {
   id: string;
@@ -28,32 +30,33 @@ export default function LocationSidebar({ locations, refreshLocations, onSelect 
 
   return (
     <>
-      <aside className="w-full lg:w-[400px] border-t lg:border-t-0 lg:border-l border-gray-200 p-4">
-        <div className="flex items-center mb-4 gap-2">
-          <input
+      <aside className="w-full border-t p-4 lg:w-[400px] lg:border-t-0 lg:border-l">
+        <div className="mb-4 flex items-center gap-2">
+          <Input
             type="text"
             placeholder="Rechercher un lieu..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 border border-gray-300 rounded px-2 py-1"
+            className="flex-1"
           />
           {session && (
-            <button
+            <Button
+              size="icon"
               onClick={() => setShowForm(true)}
               title="Ajouter un lieu"
-              className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition cursor-pointer"
+              aria-label="Ajouter un lieu"
             >
-              <AddIcon />
-            </button>
+              <Plus />
+            </Button>
           )}
         </div>
 
-        <ul className="space-y-2">
+        <ul className="space-y-1">
           {filtered.map((loc) => (
             <li key={loc.id}>
               <button
                 onClick={() => onSelect(loc.id)}
-                className="w-full text-left p-2 rounded hover:bg-gray-100 cursor-pointer"
+                className="w-full cursor-pointer rounded-md p-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
               >
                 {loc.name}
               </button>
