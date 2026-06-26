@@ -49,7 +49,7 @@ describe('Map Component', () => {
 
     expect(mockMapboxgl.Map).toHaveBeenCalledWith({
       container: container.firstChild,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [-0.57918, 44.837789],
       zoom: 12,
     });

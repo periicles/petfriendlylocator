@@ -22,7 +22,7 @@ export default function Map({ locations, onSelectLocation }: MapProps) {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [-0.57918, 44.837789],
       zoom: 12,
     });
@@ -53,13 +53,15 @@ export default function Map({ locations, onSelectLocation }: MapProps) {
       markersRef.current = [];
 
       locations.forEach((loc) => {
-        const marker = new mapboxgl.Marker()
+        const element = document.createElement('div');
+        element.className = 'pfl-marker';
+
+        const marker = new mapboxgl.Marker({ element, anchor: 'center' })
           .setLngLat([loc.longitude, loc.latitude])
-          .setPopup(new mapboxgl.Popup().setText(loc.name))
+          .setPopup(new mapboxgl.Popup({ offset: 14, closeButton: false }).setText(loc.name))
           .addTo(map);
 
-        marker.getElement().style.cursor = 'pointer';
-        marker.getElement().addEventListener('click', () => onSelectLocation?.(loc.id));
+        element.addEventListener('click', () => onSelectLocation?.(loc.id));
 
         markersRef.current.push(marker);
       });
