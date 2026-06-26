@@ -1,6 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 export default function UserProfile() {
   const [pseudo, setPseudo] = useState('');
@@ -42,64 +46,43 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto bg-[var(--vintage-beige)]">
-      <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--vintage-black)' }}>
-        Votre profil
-      </h2>
-      <p className="text-sm mb-6" style={{ color: 'var(--vintage-taupe)' }}>
+    <div className="mx-auto max-w-3xl p-8">
+      <h2 className="mb-2 text-2xl font-bold">Votre profil</h2>
+      <p className="mb-6 text-sm text-muted-foreground">
         Mettez à jour vos informations personnelles.
       </p>
 
       {loading ? (
-        <p className="text-gray-500 italic">Chargement...</p>
+        <p className="text-muted-foreground italic">Chargement...</p>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-xl p-6 space-y-4">
-          <div>
-            <label
-              htmlFor="pseudo"
-              className="block text-sm mb-1"
-              style={{ color: 'var(--vintage-black)' }}
-            >
-              Pseudo
-            </label>
-            <input
-              id="pseudo"
-              type="text"
-              value={pseudo}
-              onChange={(e) => setPseudo(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="Jean Dupont"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm mb-1"
-              style={{ color: 'var(--vintage-black)' }}
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              placeholder="jean@example.com"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-[var(--vintage-taupe)] text-white py-2 px-4 rounded hover:opacity-90 transition cursor-pointer"
-          >
-            Enregistrer les modifications
-          </button>
-          {message && (
-            <p className="text-sm mt-2" style={{ color: 'var(--vintage-black)' }}>
-              {message}
-            </p>
-          )}
-        </form>
+        <Card>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="pseudo">Pseudo</Label>
+                <Input
+                  id="pseudo"
+                  type="text"
+                  value={pseudo}
+                  onChange={(e) => setPseudo(e.target.value)}
+                  placeholder="Jean Dupont"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="jean@example.com"
+                />
+              </div>
+              <Button type="submit">Enregistrer les modifications</Button>
+              {message && <p className="text-sm text-muted-foreground">{message}</p>}
+            </form>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

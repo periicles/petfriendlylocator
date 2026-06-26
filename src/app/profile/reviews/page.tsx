@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/lib/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function UserReviews() {
   const session = await auth();
@@ -21,32 +22,27 @@ export default async function UserReviews() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6" style={{ color: 'var(--vintage-black)' }}>
-        Mes avis
-      </h2>
+      <h2 className="mb-6 text-2xl font-bold">Mes avis</h2>
 
       {reviews.length === 0 ? (
-        <p className="italic text-gray-500">Aucun avis n&apos;a encore été publié.</p>
+        <p className="text-muted-foreground italic">Aucun avis n&apos;a encore été publié.</p>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {reviews.map((review) => (
-            <div
-              key={review.review_id}
-              className="rounded-xl shadow p-4"
-              style={{
-                backgroundColor: 'var(--vintage-beige)',
-                color: 'var(--vintage-black)',
-              }}
-            >
-              <h3 className="text-lg font-semibold">{review.title}</h3>
-              <p className="text-sm italic text-gray-700">&quot;{review.content}&quot;</p>
-              <p className="text-sm text-gray-600 mt-2">
-                Note : {review.rating}/5 • Lieu : {review.location.name}
-              </p>
-              <p className="text-xs mt-2 text-right text-gray-500">
-                Publié le {new Date(review.created_at).toLocaleDateString()}
-              </p>
-            </div>
+            <Card key={review.review_id}>
+              <CardHeader>
+                <CardTitle className="text-lg">{review.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground italic">&quot;{review.content}&quot;</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Note : {review.rating}/5 • Lieu : {review.location.name}
+                </p>
+                <p className="mt-2 text-right text-xs text-muted-foreground">
+                  Publié le {new Date(review.created_at).toLocaleDateString()}
+                </p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
