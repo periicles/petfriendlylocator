@@ -39,4 +39,4 @@ Refresh these numbers by running `npm test -- --coverage` after notable changes.
 
 - One spec file per source file when practical; mirror the source name (`Map.tsx` → `Map.test.tsx`).
 - Use `getByRole` / accessible queries over `getByTestId` whenever the component exposes accessible names.
-- Mock NextAuth via `next-auth/react` for client components and `getServerSession` for server-side pages — see `profile.test.tsx` and `login.test.tsx` for reference patterns.
+- Mock auth via `next-auth/react` for client components and the `auth()` export of `@/lib/auth` (Auth.js v5) for server-side pages/handlers — see `profile.test.tsx` and `login.test.tsx` for reference patterns.

@@ -32,6 +32,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Admin dashboard page hardened: typed rows (no `any`), correct per-resource id resolution, error state instead of `console.error`, and removal of the non-functional "Éditer" stub.
 - `LocationsView` now types the locations response (no `any`) and parses coordinates to numbers.
 - `AddLocationModal` typed against a `GeocodingFeature` shape (no `any`); postcode is parsed to a number.
+- Migrated the UI from MUI / Emotion to **shadcn/ui** (base-ui primitives, lucide icons): all components and pages rebuilt on the new token-based design system; `@mui/*` and `@emotion/*` removed.
+- Reverted the Prisma data-access layer from `@prisma/extension-accelerate` back to `@prisma/adapter-pg`.
+- CI: added a `test` job (`prisma generate` → `npm run build` → `npm test`) running on every push and PR, and gating the GHCR image publish.
 
 ## [0.1.0] — Initial release
 

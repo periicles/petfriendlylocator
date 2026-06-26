@@ -61,9 +61,7 @@ User ────< Location ────< Review
 | Location | `location_id` (uuid), `name`, `description?`, `address`, `zip_code`, `city`, `latitude`, `longitude`, `location_type` |
 | Review   | `review_id` (uuid), `rating`, `title`, `content`, FK `user_id?` + `location_id`                                       |
 
-Enums: `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP | HOTEL | OTHER`.
-
-> **Heads up**: the TS type `TCreateLocationInput` (`src/types/createLocationInput.ts`) currently diverges from the Prisma enum — `BEACH` exists on the TS side, `HOTEL` on the DB side. Needs alignment.
+Enums: `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | BEACH | RESTAURANT | SHOP | HOTEL | OTHER` — aligned across `prisma/schema.prisma`, the TS type `TCreateLocationInput` (`src/types/createLocationInput.ts`), and the `AddLocationModal` form.
 
 ---
 
@@ -93,12 +91,12 @@ Enums: `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP |
                                                            │
                                        ┌───────────────────┴─────────────────┐
                                        ▼                                     ▼
-                          getToken({ req })   for routes /api/locations/*    getServerSession(authOptions) for /api/user/*
+                          auth() (Auth.js v5) in each route handler → session.user.id / session.user.roles
 ```
 
-- **Strategy**: `session: { strategy: 'jwt' }` (`src/lib/auth.ts`). No session table in DB.
-- **`jwt` callback**: injects `user.id` into `token.sub` at sign-in.
-- **`session` callback**: exposes `token.sub` to the client through `session.user.id` (typed in `src/types/next-auth.d.ts`).
+- **Strategy**: `session: { strategy: 'jwt' }` (config in `src/lib/auth.config.ts`, instance in `src/lib/auth.ts`). No session table in DB.
+- **`jwt` callback**: injects `user_id` into `token.sub` and `roles` at sign-in.
+- **`session` callback**: exposes `session.user.id` and `session.user.roles` to client/server (typed in `src/types/next-auth.d.ts`).
 - **Middleware** (`middleware.ts`): redirects already-authenticated users away from `/login` or `/register`. **Does not protect** other routes — protection lives in each route handler / page.
 
 ---
@@ -107,14 +105,17 @@ Enums: `UserRole` = `USER | ADMIN`. `LocationType` = `PARK | RESTAURANT | SHOP |
 
 Full reference: [API.en.md](./API.en.md).
 
-| Route                          | Methods         | Auth                       |
-| ------------------------------ | --------------- | -------------------------- |
-| `/api/locations`               | GET, POST       | POST: JWT                  |
-| `/api/locations/[id]`          | GET, PUT, DELETE| Mutations: JWT + ownership |
-| `/api/register`                | POST            | public                     |
-| `/api/user/me`                 | GET             | session                    |
-| `/api/user/update`             | POST            | session                    |
-| `/api/auth/[...nextauth]`      | GET, POST       | handled by NextAuth        |
+| Route                            | Methods         | Auth                          |
+| -------------------------------- | --------------- | ----------------------------- |
+| `/api/locations`                 | GET, POST       | POST: session                 |
+| `/api/locations/[id]`            | GET, PUT, DELETE| Mutations: session + ownership |
+| `/api/locations/[id]/reviews`    | GET, POST       | POST: session                 |
+| `/api/register`                  | POST            | public                        |
+| `/api/user/me`                   | GET             | session                       |
+| `/api/user/update`               | POST            | session                       |
+| `/api/admin/{users,locations,reviews}`        | GET    | `ADMIN`              |
+| `/api/admin/{users,locations,reviews}/[id]`   | DELETE | `ADMIN`              |
+| `/api/auth/[...nextauth]`        | GET, POST       | handled by Auth.js            |
 
 ---
 

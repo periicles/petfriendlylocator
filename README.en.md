@@ -18,7 +18,7 @@ Community-driven web app for discovering and sharing pet-friendly places around 
 | Language         | TypeScript 6                                                                              |
 | Frontend         | React 19, [Tailwind CSS 4](https://tailwindcss.com/), [MUI 9](https://mui.com/) (Emotion) |
 | Map              | [Mapbox GL JS 3](https://docs.mapbox.com/mapbox-gl-js/)                                   |
-| Auth             | [NextAuth 4](https://next-auth.js.org/) (Credentials + JWT)                               |
+| Auth             | [Auth.js v5](https://authjs.dev/) (NextAuth, Credentials + JWT)                           |
 | ORM              | [Prisma 7](https://www.prisma.io/) + `@prisma/adapter-pg`                                 |
 | Database         | PostgreSQL 16 (Prisma Postgres)                                                           |
 | Testing          | Jest 30, React Testing Library                                                            |
@@ -55,7 +55,7 @@ cd petfriendlylocator
 cp .env.example .env
 ```
 
-Fill in `.env` — see [`.env.example`](./.env.example) for the full list (Postgres, `DATABASE_URL`, `NEXTAUTH_SECRET`, `NEXT_PUBLIC_MAPBOX_TOKEN`).
+Fill in `.env` — see [`.env.example`](./.env.example) for the full list (Postgres, `DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_MAPBOX_TOKEN`).
 
 ### 2A. Run with Docker (recommended)
 
