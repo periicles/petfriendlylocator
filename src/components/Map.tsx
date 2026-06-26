@@ -4,6 +4,7 @@ import mapboxgl from 'mapbox-gl';
 import { useEffect, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Location } from './LocationsView';
+import { ACTIVE_MAP_STYLE } from './mapStyles';
 
 type MapProps = {
   locations: Location[];
@@ -22,7 +23,7 @@ export default function Map({ locations, onSelectLocation }: MapProps) {
     mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: ACTIVE_MAP_STYLE,
       center: [-0.57918, 44.837789],
       zoom: 12,
     });
